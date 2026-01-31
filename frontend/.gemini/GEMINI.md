@@ -1,4 +1,3 @@
-
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
 ## TypeScript Best Practices
@@ -16,6 +15,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
 - Use `NgOptimizedImage` for all static images.
   - `NgOptimizedImage` does not work for inline base64 images.
+- Never hardcode two same strings, instead extract it to a const variable either in shared/texts.ts if it's in many different directories or as a readonly property in class, if it doesn't fall into one of these situations ask me what to do and localize all of them
 
 ## Accessibility Requirements
 
@@ -29,10 +29,11 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use `computed()` for derived state
 - Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator
 - Prefer inline templates for small components
-- Prefer Reactive forms instead of Template-driven ones
+- Prefer Signal forms instead of Template-driven ones
 - Do NOT use `ngClass`, use `class` bindings instead
 - Do NOT use `ngStyle`, use `style` bindings instead
 - When using external templates/styles, use paths relative to the component TS file.
+- Use tailwind for styling
 
 ## State Management
 
@@ -54,3 +55,16 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+### Folder structure
+
+- Components that handle routes should be kept in routes folder and structure of this folder must reflect how they look in browser
+- Every time you create an angular file use angular cli to do so, IF YOU DON'T HAVE ACCESS TO IT ASK FOR IT BEFORE DOING ANYTHING
+- Use core module for services that are used across the entire app, such as authentication or error handling services
+- The shared module contains reusable components, directives, and pipes that can be used across multiple feature modules
+
+## Testing
+
+- Tests should be thorough but not redundant
+- The bigger the component, the more general tests should be
+- You should prefer integration tests and result of user interaction instead of implementation
