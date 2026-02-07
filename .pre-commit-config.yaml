@@ -22,11 +22,14 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black", "--filter-files"]
-  - repo: https://github.com/biomejs/pre-commit
-    rev: "v2.3.10"
+  - repo: local
     hooks:
-      - id: biome-check
-        additional_dependencies: ["@biomejs/biome@2.1.1"]
+      - id: local-biome-check
+        name: biome check
+        entry: npx @biomejs/biome check --write --files-ignore-unknown=true --no-errors-on-unmatched
+        language: system
+        types: [text]
+        files: "\\.(jsx?|tsx?|c(js|ts)|m(js|ts)|d\\.(ts|cts|mts)|jsonc?)$"
   - repo: https://github.com/jorisroovers/gitlint
     rev: "v0.19.1" # pick a tag / sha to use
     hooks:
