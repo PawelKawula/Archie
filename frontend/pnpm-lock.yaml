@@ -44,6 +44,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      pixi-viewport:
+        specifier: ^6.0.3
+        version: 6.0.3(pixi.js@8.16.0)
       pixi.js:
         specifier: ^8.16.0
         version: 8.16.0
@@ -5208,6 +5211,11 @@ packages:
   piscina@5.1.4:
     resolution: {integrity: sha512-7uU4ZnKeQq22t9AsmHGD2w4OYQGonwFnTypDypaWi7Qr2EvQIFVtG8J5D/3bE7W123Wdc9+v4CZDu5hJXVCtBg==}
     engines: {node: '>=20.x'}
+
+  pixi-viewport@6.0.3:
+    resolution: {integrity: sha512-2+qPJ0/n+8hQYhWvY+795+x9y3MiUrCOWacK0DY53whowWaGdx9iDocy7z1pBwjkZhC52YvrJQuZKK0sdVLtBw==}
+    peerDependencies:
+      pixi.js: '>=8'
 
   pixi.js@8.16.0:
     resolution: {integrity: sha512-gu2xw3sZGAn3cWBtk0HqTQT+v19YAfiaYXwUGgWoJl5NKz4cEZJUgWrwkmdfDszGyYBAGqOvJNbd2M9+vzLLMg==}
@@ -12688,6 +12696,10 @@ snapshots:
   piscina@5.1.4:
     optionalDependencies:
       '@napi-rs/nice': 1.1.1
+
+  pixi-viewport@6.0.3(pixi.js@8.16.0):
+    dependencies:
+      pixi.js: 8.16.0
 
   pixi.js@8.16.0:
     dependencies:

@@ -15,6 +15,9 @@ import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
   imports: [HlmSidebarImports, NgIcon, HlmIcon],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
+  host: {
+    style: 'position: fixed; top: 0; left: 0',
+  },
   providers: [
     provideIcons({
       lucideHouse,
