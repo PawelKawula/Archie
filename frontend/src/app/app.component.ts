@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
+import { Sidebar } from './core/layout/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [Sidebar, HlmSidebarImports, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class App {
-  protected readonly title = signal('frontend');
-}
+export class App {}

@@ -29,9 +29,21 @@ importers:
       '@angular/router':
         specifier: ^21.0.0
         version: 21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(@angular/platform-browser@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)))(rxjs@7.8.2)
+      '@ng-icons/core':
+        specifier: '>=32.0.0 <34.0.0'
+        version: 33.0.0(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@ng-icons/lucide':
+        specifier: '>=32.0.0 <34.0.0'
+        version: 33.0.0
       '@spartan-ng/brain':
         specifier: 0.0.1-alpha.614
         version: 0.0.1-alpha.614(@angular/cdk@21.0.0(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(@angular/forms@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(@angular/platform-browser@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)))(rxjs@7.8.2))(clsx@2.1.1)(luxon@3.7.2)(rxjs@7.8.2)(tailwindcss@4.1.18)
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
@@ -1804,6 +1816,16 @@ packages:
   '@napi-rs/wasm-runtime@1.1.1':
     resolution: {integrity: sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A==}
 
+  '@ng-icons/core@33.0.0':
+    resolution: {integrity: sha512-yLRBA6FnvW16dCCqiSoA7YrCwsPcrrwmh/VylmMLHZuBe7lmPnBJ5JE8hILU9HmYr+HPPXoH47esu881M7lftA==}
+    peerDependencies:
+      '@angular/common': '>=21.0.0'
+      '@angular/core': '>=21.0.0'
+      rxjs: ^6.5.3 || ^7.4.0
+
+  '@ng-icons/lucide@33.0.0':
+    resolution: {integrity: sha512-HX4tAihCPE3jYgzrlPpM8O/6d/1hbHNHW37GtCQOcY8JFeBc3v5a2MCwFQQwqFm74zBnQbY6iJeGIP6dsaMnuA==}
+
   '@noble/hashes@1.4.0':
     resolution: {integrity: sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==}
     engines: {node: '>= 16'}
@@ -3135,6 +3157,9 @@ packages:
   ci-info@3.9.0:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
+
+  class-variance-authority@0.7.1:
+    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
 
   cli-cursor@3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
@@ -8638,6 +8663,17 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
+  '@ng-icons/core@33.0.0(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2)':
+    dependencies:
+      '@angular/common': 21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@angular/core': 21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)
+      rxjs: 7.8.2
+      tslib: 2.8.1
+
+  '@ng-icons/lucide@33.0.0':
+    dependencies:
+      tslib: 2.8.1
+
   '@noble/hashes@1.4.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -10368,6 +10404,10 @@ snapshots:
   chrome-trace-event@1.0.4: {}
 
   ci-info@3.9.0: {}
+
+  class-variance-authority@0.7.1:
+    dependencies:
+      clsx: 2.1.1
 
   cli-cursor@3.1.0:
     dependencies:
