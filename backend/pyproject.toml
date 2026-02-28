@@ -5,5 +5,24 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "django>=6.0.1",
+    "django>=5.2,<6.0",
+    "django-stubs-ext>=5.2.9",
+]
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+
+[tool.django-stubs]
+django_settings_module = "backend.settings"
+
+[tool.pyright]
+reportMissingTypeArgument = "information"
+reportPrivateUsage = "information"
+typeCheckingMode = "standard"
+reportAttributeAccessIssue = false
+
+[dependency-groups]
+dev = [
+    "django-stubs[compatible-mypy]>=5.2.9",
 ]
