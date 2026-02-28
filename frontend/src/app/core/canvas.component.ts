@@ -1,6 +1,5 @@
-import { Component, type OnInit } from '@angular/core';
-import { Application, Sprite, Texture } from 'pixi.js';
-import { Viewport } from 'pixi-viewport';
+import { Component, inject, type OnInit } from '@angular/core';
+import { Canvas as CanvasService } from './canvas.service';
 
 @Component({
   selector: 'app-canvas',
@@ -9,32 +8,8 @@ import { Viewport } from 'pixi-viewport';
   styles: ``,
 })
 export class Canvas implements OnInit {
+  #canvas = inject(CanvasService);
   async ngOnInit() {
-    const app = new Application();
-
-    await app.init({ background: '#1099bb', resizeTo: window });
-    // @ts-expect-error
-    globalThis.__PIXI_APP__ = app;
-
-    document.body.appendChild(app.canvas);
-
-    const viewport = new Viewport({
-      screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight,
-      worldWidth: 1000,
-      worldHeight: 1000,
-      events: app.renderer.events,
-    });
-
-    app.stage.addChild(viewport);
-
-    viewport.drag().pinch().wheel().decelerate();
-
-    app.stage.addChild(viewport);
-
-    const sprite = viewport.addChild(new Sprite(Texture.WHITE));
-    sprite.tint = 0xff0000;
-    sprite.width = sprite.height = 100;
-    sprite.position.set(100, 100);
+    await this.#canvas.init();
   }
 }
