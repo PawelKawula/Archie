@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-
+import { ConfigurationError } from '../exceptions';
 import { Canvas } from './canvas.service';
-import { ConfigurationError } from './exceptions';
 
 describe('Canvas', () => {
   let service: Canvas;

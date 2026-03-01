@@ -16,7 +16,7 @@ import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
   host: {
-    style: 'position: fixed; top: 0; left: 0',
+    style: 'position: fixed; z-index: 9999; top: 0; left: 0',
   },
   providers: [
     provideIcons({

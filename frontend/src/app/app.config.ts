@@ -5,12 +5,7 @@ import {
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { Canvas } from './core/canvas.service';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
-    Canvas,
-  ],
+  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],
 };

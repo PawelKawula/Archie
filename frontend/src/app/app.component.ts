@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
-import { Canvas } from './core/canvas.component';
+import { Canvas } from './core/canvas/canvas.component';
 import { Sidebar } from './core/layout/sidebar/sidebar.component';
 
 @Component({
