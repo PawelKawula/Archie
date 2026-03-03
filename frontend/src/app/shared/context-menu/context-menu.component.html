@@ -1,7 +1,7 @@
-<div [hlmContextMenuTrigger]="menu" class="p-absoulte hidden">Right click here</div>
+<div [hlmContextMenuTrigger]="menuTemplate() || defaultMenu" class="p-absoulte hidden">Right click here</div>
 
-<div #menuAnchor class="absolute hidden" [hlmContextMenuTrigger]="menu"></div>
-<ng-template #menu>
+<div #menuAnchor class="absolute hidden" [hlmContextMenuTrigger]="menuTemplate() || defaultMenu"></div>
+<ng-template #defaultMenu>
   <hlm-dropdown-menu>
     <hlm-dropdown-menu-group>
       <button hlmDropdownMenuItem>Profile</button>

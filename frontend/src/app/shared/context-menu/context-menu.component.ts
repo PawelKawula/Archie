@@ -3,7 +3,9 @@ import {
   DestroyRef,
   type ElementRef,
   inject,
+  input,
   type OnInit,
+  type TemplateRef,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,6 +25,7 @@ import {
 export class ContextMenu implements OnInit {
   #contextMenuService = inject(ContextMenuService);
   #destroyRef = inject(DestroyRef);
+  menuTemplate = input<TemplateRef<unknown>>();
 
   menuAnchor = viewChild.required<ElementRef>('menuAnchor');
 
