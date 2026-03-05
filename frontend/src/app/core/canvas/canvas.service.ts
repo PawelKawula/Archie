@@ -1,5 +1,5 @@
 import { type ElementRef, Injectable, inject } from '@angular/core';
-import { Application, Sprite, Texture } from 'pixi.js';
+import { Application, Assets, Sprite, Texture } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { ContextMenu } from '../../shared/context-menu.service';
 import { ConfigurationError } from '../exceptions';
@@ -33,6 +33,8 @@ export class Canvas {
     this._app = new Application();
 
     await this._app.init({ background: '#1099bb', resizeTo: window });
+
+    await Assets.load('fonts/Hack-Regular/Hack-Regular.fnt');
     // @ts-expect-error
     globalThis.__PIXI_APP__ = this._app;
 
@@ -59,15 +61,18 @@ export class Canvas {
     this._app.stage.addChild(this._viewport);
 
     const sprite = this._viewport.addChild(new Sprite(Texture.WHITE));
+    sprite.eventMode = 'static';
+    sprite.on('rightclick', (ev) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+    });
     sprite.tint = 0xff0000;
     sprite.width = sprite.height = 100;
     sprite.position.set(100, 100);
 
     this._app.stage.eventMode = 'static';
 
-    this._app.canvas.addEventListener('contextmenu', (ev) =>
-      this.showContextMenu(ev),
-    );
+    this._app.stage.on('rightclick', (ev) => this.showContextMenu(ev));
   }
 
   showContextMenu(event: PointerEvent) {
