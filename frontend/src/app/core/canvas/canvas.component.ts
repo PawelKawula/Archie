@@ -1,5 +1,6 @@
 import {
   type AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   type ElementRef,
   inject,
@@ -18,6 +19,7 @@ import { Canvas as CanvasService } from './canvas.service';
   imports: [ContextMenu, HlmContextMenuImports, HlmDropdownMenuImports],
   templateUrl: './canvas.component.html',
   styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Canvas implements OnInit, AfterViewInit {
   #canvas = inject(CanvasService);

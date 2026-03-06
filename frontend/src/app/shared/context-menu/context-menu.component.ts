@@ -1,11 +1,11 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
   type ElementRef,
   inject,
   input,
-  NgZone,
   type OnInit,
   signal,
   type TemplateRef,
@@ -27,13 +27,13 @@ import { Node } from '../domain/node';
   imports: [HlmDropdownMenuImports, HlmContextMenuImports],
   templateUrl: './context-menu.component.html',
   styleUrl: './context-menu.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContextMenu implements OnInit {
   #contextMenuService = inject(ContextMenuService);
   #destroyRef = inject(DestroyRef);
   #orchestrator = inject(Orchestrator);
   #cdr = inject(ChangeDetectorRef);
-  #ngZone = inject(NgZone);
 
   menuTemplate = input<TemplateRef<unknown>>();
   requestedTemplate = signal<TemplateRef<unknown> | null | undefined>(null);
@@ -46,7 +46,7 @@ export class ContextMenu implements OnInit {
     this.#contextMenuService.openMenu$
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe((req) => {
-        this.#ngZone.run(() => this.open(req));
+        this.open(req);
       });
   }
 
