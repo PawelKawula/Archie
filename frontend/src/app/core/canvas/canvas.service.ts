@@ -85,6 +85,6 @@ export class Canvas {
 
   showContextMenu(event: FederatedPointerEvent) {
     event.preventDefault();
-    this.contextMenu.show({ event: event.nativeEvent as PointerEvent });
+    this.contextMenu.show({ event });
   }
 }

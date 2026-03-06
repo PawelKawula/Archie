@@ -19,10 +19,10 @@ export class Orchestrator {
 
     node.graphics.eventMode = 'static';
 
-    node.graphics.on('rightclick', (ev) => {
-      ev.stopPropagation();
+    node.graphics.on('rightclick', (event) => {
+      event.stopPropagation();
       this.contextMenu.show({
-        event: ev.nativeEvent as PointerEvent,
+        event,
         template: this.nodeMenuTemplate(),
         data: node,
       });
