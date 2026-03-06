@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, type TemplateRef } from '@angular/core';
 import { Subject } from 'rxjs';
 
 export type ContextMenuRequest = {
   event: PointerEvent;
   containerRect?: DOMRect;
+  template?: TemplateRef<unknown> | null;
+  data?: unknown;
 };
 
 @Injectable({

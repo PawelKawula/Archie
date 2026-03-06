@@ -1,10 +1,13 @@
 import {
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   type ElementRef,
   inject,
   input,
+  NgZone,
   type OnInit,
+  signal,
   type TemplateRef,
   viewChild,
 } from '@angular/core';
@@ -12,7 +15,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { BitmapText, Rectangle } from 'pixi.js';
-import { BehaviorSubject } from 'rxjs';
 import { Orchestrator } from '../../core/orchestrator.service';
 import {
   type ContextMenuRequest,
@@ -30,38 +32,50 @@ export class ContextMenu implements OnInit {
   #contextMenuService = inject(ContextMenuService);
   #destroyRef = inject(DestroyRef);
   #orchestrator = inject(Orchestrator);
+  #cdr = inject(ChangeDetectorRef);
+  #ngZone = inject(NgZone);
+
   menuTemplate = input<TemplateRef<unknown>>();
-  menuPosition = new BehaviorSubject<MouseEvent | null>(null);
+  requestedTemplate = signal<TemplateRef<unknown> | null | undefined>(null);
+  requestedData = signal<unknown>(null);
+  menuPosition = signal<{ clientX: number; clientY: number } | null>(null);
 
   menuAnchor = viewChild.required<ElementRef>('menuAnchor');
 
   ngOnInit(): void {
     this.#contextMenuService.openMenu$
       .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe((ev) => this.open(ev));
+      .subscribe((req) => {
+        this.#ngZone.run(() => this.open(req));
+      });
   }
 
-  open({ event, containerRect }: ContextMenuRequest) {
+  open({ event, containerRect, template, data }: ContextMenuRequest) {
+    this.requestedTemplate.set(template);
+    this.requestedData.set(data);
+    this.menuPosition.set({ clientX: event.clientX, clientY: event.clientY });
+
+    // We need to detect changes so that the hlmContextMenuTrigger input is updated
+    // with the new template before we dispatch the contextmenu event.
+    this.#cdr.detectChanges();
+
     const el = this.menuAnchor().nativeElement;
 
     el.style.left = `${event.clientX - (containerRect?.left ?? 0)}px`;
     el.style.top = `${event.clientY - (containerRect?.top ?? 0)}px`;
 
     const contextEvent = new MouseEvent('contextmenu', {
-      bubbles: false,
+      bubbles: true,
       clientX: event.clientX,
       clientY: event.clientY,
     });
 
     el.dispatchEvent(contextEvent);
-    this.menuPosition.next(contextEvent);
   }
 
   addNode() {
-    console.log('add');
-    const pos = this.menuPosition.value;
-    console.log(pos);
-    if (pos === null) throw Error('Assertion error');
+    const pos = this.menuPosition();
+    if (pos === null) return;
     const text = new BitmapText({
       text: 'New Text',
       style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
