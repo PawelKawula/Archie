@@ -56,6 +56,11 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
 
+## Pixijs
+
+- Use pixijs for 2d rendering on a canvas
+- Read documentation here: https://pixijs.com/llms-medium.txt
+
 ### Folder structure
 
 - Components that handle routes should be kept in routes folder and structure of this folder must reflect how they look in browser
