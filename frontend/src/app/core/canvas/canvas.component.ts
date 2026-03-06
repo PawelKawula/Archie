@@ -1,13 +1,16 @@
 import {
+  type AfterViewInit,
   Component,
   type ElementRef,
   inject,
   type OnInit,
+  type TemplateRef,
   viewChild,
 } from '@angular/core';
 import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { ContextMenu } from '../../shared/context-menu/context-menu.component';
+import { Orchestrator } from '../orchestrator.service';
 import { Canvas as CanvasService } from './canvas.service';
 
 @Component({
@@ -16,12 +19,19 @@ import { Canvas as CanvasService } from './canvas.service';
   templateUrl: './canvas.component.html',
   styles: ``,
 })
-export class Canvas implements OnInit {
+export class Canvas implements OnInit, AfterViewInit {
   #canvas = inject(CanvasService);
+  protected orchestrator = inject(Orchestrator);
 
   pixiContainer = viewChild.required<ElementRef>('pixiContainer');
+  nodeMenuTemplate =
+    viewChild.required<TemplateRef<unknown>>('nodeMenuTemplate');
 
   async ngOnInit() {
     await this.#canvas.init(this.pixiContainer());
+  }
+
+  ngAfterViewInit() {
+    this.orchestrator.nodeMenuTemplate.set(this.nodeMenuTemplate());
   }
 }

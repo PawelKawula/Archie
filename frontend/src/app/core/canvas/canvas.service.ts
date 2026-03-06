@@ -1,5 +1,11 @@
 import { type ElementRef, Injectable, inject } from '@angular/core';
-import { Application, Assets, Sprite, Texture } from 'pixi.js';
+import {
+  Application,
+  Assets,
+  type FederatedPointerEvent,
+  Sprite,
+  Texture,
+} from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { ContextMenu } from '../../shared/context-menu.service';
 import { ConfigurationError } from '../exceptions';
@@ -72,12 +78,13 @@ export class Canvas {
 
     this._app.stage.eventMode = 'static';
 
-    this._app.stage.on('rightclick', (ev) => this.showContextMenu(ev));
+    this._app.stage.on('rightclick', (ev) =>
+      this.showContextMenu(ev as FederatedPointerEvent),
+    );
   }
 
-  showContextMenu(event: PointerEvent) {
+  showContextMenu(event: FederatedPointerEvent) {
     event.preventDefault();
-    console.log(event);
-    this.contextMenu.show({ event });
+    this.contextMenu.show({ event: event.nativeEvent as PointerEvent });
   }
 }
