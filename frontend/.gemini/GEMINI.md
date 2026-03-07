@@ -1,5 +1,28 @@
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
+## Project description
+
+- It's a frontend for app that should be a simulation of a cluser of computers that have services running on them
+- It's main objective is providing users with ability to design computer system that is resilient and performant
+- One very simple example is having a proxy, http server and database, and we want to simulate how this system would behave under load
+- It should provide c4 modeling in the long run
+- Main focus when designing this should be on decoupling program logic from it's representation, so it is easily testable without relying on some e2e tests
+- Another important consideration is focus on AI, this program should be easy to simulate not only with its representation layer, but with manipulating some global state
+  so it's easy to be manipulated by an AI.
+
+## General Practices
+
+- We prefer assertion errors to exceptions, wherever there is any more complex logic we keep on using assert function defined in core/utils.ts
+- We are pretty generous with calling these assertions
+- Most of the code that interops with domain logic and is not directly related fe. presentation layer, should use signal store events to update the state
+
+## Common steps
+
+- Make sure to run biome formatter after changes, but only on frontend or src directory
+- If you introduce new features or see new edge cases add tests for them
+- Make sure that tests still pass
+- Use typia assertions to make sure that we operate on correct types, especially if it's stuff fetched from backend
+
 ## TypeScript Best Practices
 
 - Use strict type checking
@@ -73,3 +96,4 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Tests should be thorough but not redundant
 - The bigger the component, the more general tests should be
 - You should prefer integration tests and result of user interaction instead of implementation
+- Tests should include behaviour of pixijs, it should check if all the containers, sprites etc. are representing actual state correctly
