@@ -1,4 +1,4 @@
-<div #menuAnchor class="absolute hidden" [hlmContextMenuTrigger]="requestedTemplate() || menuTemplate() || defaultMenu" [hlmContextMenuTriggerData]="{ $implicit: requestedData() }"></div>
+<div #menuAnchor class="absolute hidden" [hlmContextMenuTrigger]="requestedTemplate() || menuTemplate() || defaultMenu" [hlmContextMenuTriggerData]="{ $implicit: requestedData }"></div>
 <ng-template #defaultMenu>
   <hlm-dropdown-menu>
     <hlm-dropdown-menu-group>
