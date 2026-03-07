@@ -1,7 +1,10 @@
 import { Connector } from './connector';
+import { Node } from './node';
 
 describe('Connector', () => {
   it('should create an instance', () => {
-    expect(new Connector()).toBeTruthy();
+    const inNode = new Node({});
+    const outNode = new Node({});
+    expect(new Connector({ inNode, outNode })).toBeTruthy();
   });
 });

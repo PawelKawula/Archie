@@ -78,6 +78,9 @@ importers:
       '@biomejs/biome':
         specifier: 2.3.14
         version: 2.3.14
+      '@hirez_io/observer-spy':
+        specifier: ^2.2.0
+        version: 2.2.0(rxjs@7.8.2)(typescript@5.9.3)
       '@spartan-ng/cli':
         specifier: 0.0.1-alpha.614
         version: 0.0.1-alpha.614(03bf30ee89662b7900b494d369925d7c)
@@ -1184,6 +1187,12 @@ packages:
 
   '@harperfast/extended-iterable@1.0.3':
     resolution: {integrity: sha512-sSAYhQca3rDWtQUHSAPeO7axFIUJOI6hn1gjRC5APVE1a90tuyT8f5WIgRsFhhWA7htNkju2veB9eWL6YHi/Lw==}
+
+  '@hirez_io/observer-spy@2.2.0':
+    resolution: {integrity: sha512-G9nv87vjRILgB/X1AtKBv1DZX7yXSYAOCXon/f+QULKoXVhVehYUF5Lv0SQ97ebf1sA48Z2CyQ9h2v4Pz6DgaQ==}
+    peerDependencies:
+      rxjs: '>=6.0.0'
+      typescript: '>=2.8.1'
 
   '@hono/node-server@1.19.9':
     resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
@@ -8048,6 +8057,11 @@ snapshots:
 
   '@harperfast/extended-iterable@1.0.3':
     optional: true
+
+  '@hirez_io/observer-spy@2.2.0(rxjs@7.8.2)(typescript@5.9.3)':
+    dependencies:
+      rxjs: 7.8.2
+      typescript: 5.9.3
 
   '@hono/node-server@1.19.9(hono@4.12.3)':
     dependencies:

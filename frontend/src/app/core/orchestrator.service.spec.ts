@@ -1,12 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { Node } from '../shared/domain/node';
+import { ClusterStore } from './cluster.store';
 import { Orchestrator } from './orchestrator.service';
 
 describe('Orchestrator', () => {
   let service: Orchestrator;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [Orchestrator, ClusterStore],
+    });
     service = TestBed.inject(Orchestrator);
   });
 
@@ -15,7 +18,7 @@ describe('Orchestrator', () => {
   });
 
   it('should add a node to the store', () => {
-    const node = new Node({ type: 'sprite', name: 'Test Node' });
+    const node = new Node({ name: 'Test Node' });
     service.addNode(node);
 
     expect(service.store.nodes().length).toBe(1);
@@ -23,7 +26,7 @@ describe('Orchestrator', () => {
   });
 
   it('should remove a node from the store', () => {
-    const node = new Node({ type: 'sprite', name: 'Test Node' });
+    const node = new Node({ name: 'Test Node' });
     service.addNode(node);
     service.removeNode(node.id);
 
