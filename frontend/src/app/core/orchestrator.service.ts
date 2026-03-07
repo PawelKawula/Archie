@@ -1,36 +1,31 @@
 import { Injectable, inject, signal, type TemplateRef } from '@angular/core';
+import type { FederatedPointerEvent } from 'pixi.js';
 import { ContextMenu } from '../shared/context-menu.service';
 import type { Node } from '../shared/domain/node';
-import { Canvas } from './canvas/canvas.service';
+import { ClusterStore } from './cluster.store';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Orchestrator {
-  canvas = inject(Canvas);
-  private readonly _nodes: Set<Node> = new Set();
+  readonly store = inject(ClusterStore);
   private readonly contextMenu = inject(ContextMenu);
 
   readonly nodeMenuTemplate = signal<TemplateRef<unknown> | null>(null);
 
   addNode(node: Node) {
-    this._nodes.add(node);
-    this.canvas.app.stage.addChild(node.graphics);
-
-    node.graphics.eventMode = 'static';
-
-    node.graphics.on('rightclick', (ev) => {
-      ev.stopPropagation();
-      this.contextMenu.show({
-        event: ev.nativeEvent as PointerEvent,
-        template: this.nodeMenuTemplate(),
-        data: node,
-      });
-    });
+    this.store.addNode(node);
   }
 
-  removeNode(node: Node) {
-    this._nodes.delete(node);
-    this.canvas.app.stage.removeChild(node.graphics);
+  removeNode(nodeId: string) {
+    this.store.removeNode(nodeId);
+  }
+
+  handleNodeRightClick(node: Node, event: FederatedPointerEvent) {
+    this.contextMenu.show({
+      event,
+      template: this.nodeMenuTemplate(),
+      data: node,
+    });
   }
 }

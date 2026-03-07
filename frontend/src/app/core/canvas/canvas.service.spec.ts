@@ -15,14 +15,10 @@ describe('Canvas', () => {
   });
 
   it('should error if trying to use app before calling init', () => {
-    assert.throws(() => service.app, ConfigurationError);
+    expect(() => service.app).toThrow(ConfigurationError);
   });
 
   it('should error if trying to use viewport before calling init', () => {
-    assert.throws(() => service.app, ConfigurationError);
-  });
-
-  it('should not error if trying to use viewport after calling init', () => {
-    assert.throws(() => service.app, ConfigurationError);
+    expect(() => service.viewport).toThrow(ConfigurationError);
   });
 });

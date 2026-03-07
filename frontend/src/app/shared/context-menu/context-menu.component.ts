@@ -14,7 +14,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
-import { BitmapText, Rectangle } from 'pixi.js';
 import { Orchestrator } from '../../core/orchestrator.service';
 import {
   type ContextMenuRequest,
@@ -76,15 +75,10 @@ export class ContextMenu implements OnInit {
   addNode() {
     const pos = this.menuPosition();
     if (pos === null) return;
-    const text = new BitmapText({
-      text: 'New Text',
-      style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
-    });
-    text.position.set(pos.clientX, pos.clientY);
     const node = new Node({
-      type: 'text',
-      text: text,
-      bounds: new Rectangle(pos.clientX, pos.clientY, 100, 100),
+      name: 'New Text',
+      x: pos.clientX,
+      y: pos.clientY,
     });
     this.#orchestrator.addNode(node);
   }
