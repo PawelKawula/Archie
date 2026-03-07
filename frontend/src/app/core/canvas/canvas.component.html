@@ -6,7 +6,7 @@
 <ng-template #nodeMenuTemplate let-node>
   <hlm-dropdown-menu>
     <hlm-dropdown-menu-group>
-      <button hlmDropdownMenuItem (triggered)="orchestrator.removeNode(node())">
+      <button hlmDropdownMenuItem (triggered)="orchestrator.removeNode(node().id)">
         Remove node
       </button>
     </hlm-dropdown-menu-group>
