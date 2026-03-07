@@ -1,10 +1,11 @@
 import {
+  DestroyRef,
   type ElementRef,
-  effect,
   Injectable,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Application,
   Assets,
@@ -27,6 +28,7 @@ export class Canvas {
   private readonly contextMenu = inject(ContextMenu);
   private readonly store = inject(ClusterStore);
   private readonly orchestrator = inject(Orchestrator);
+  private readonly destroyRef = inject(DestroyRef);
 
   private _app: Application | null = null;
   private _viewport: Viewport | null = null;
@@ -36,7 +38,7 @@ export class Canvas {
   private readonly _renderNodes = new Map<string, Container>();
 
   constructor() {
-    this._setupSyncEffect();
+    this._setupSync();
   }
 
   get app() {
@@ -89,44 +91,44 @@ export class Canvas {
       this.showContextMenu(ev as FederatedPointerEvent),
     );
 
+    // Initial sync of existing nodes
+    for (const node of this.store.nodes()) {
+      this._addNodeToCanvas(node);
+    }
+
     this._isInitialized.set(true);
   }
 
-  private _setupSyncEffect() {
-    effect(() => {
-      if (!this._isInitialized()) return;
+  private _setupSync() {
+    this.store.events$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (!this._isInitialized()) return;
 
-      const nodes = this.store.nodes();
-      this._syncNodes(nodes);
-    });
+        if (event.type === 'nodeAdded') {
+          this._addNodeToCanvas(event.node);
+        } else if (event.type === 'nodeRemoved') {
+          this._removeNodeFromCanvas(event.nodeId);
+        }
+      });
   }
 
-  private _syncNodes(nodes: Node[]) {
-    const viewport = this.viewport;
+  private _addNodeToCanvas(node: Node) {
+    if (!this._viewport) return;
+    if (this._renderNodes.has(node.id)) return;
 
-    const currentIds = new Set(nodes.map((n) => n.id));
+    const container = this._createNodeGraphics(node);
+    container.position.set(node.x, node.y);
+    this._viewport.addChild(container);
+    this._renderNodes.set(node.id, container);
+  }
 
-    // 1. Remove nodes that are no longer in state
-    for (const [id, container] of this._renderNodes.entries()) {
-      if (!currentIds.has(id)) {
-        viewport.removeChild(container);
-        container.destroy({ children: true });
-        this._renderNodes.delete(id);
-      }
-    }
-
-    // 2. Add or update nodes
-    for (const node of nodes) {
-      let container = this._renderNodes.get(node.id);
-
-      if (!container) {
-        container = this._createNodeGraphics(node);
-        viewport.addChild(container);
-        this._renderNodes.set(node.id, container);
-      }
-
-      // Update position (could be animated later)
-      container.position.set(node.x, node.y);
+  private _removeNodeFromCanvas(nodeId: string) {
+    const container = this._renderNodes.get(nodeId);
+    if (container && this._viewport) {
+      this._viewport.removeChild(container);
+      container.destroy({ children: true });
+      this._renderNodes.delete(nodeId);
     }
   }
 
