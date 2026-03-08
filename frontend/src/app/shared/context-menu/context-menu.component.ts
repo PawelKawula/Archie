@@ -15,11 +15,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { Orchestrator } from '../../core/orchestrator.service';
+import { AddNodeDialog } from '../add-node-dialog/add-node-dialog.component';
 import {
   type ContextMenuRequest,
   ContextMenu as ContextMenuService,
 } from '../context-menu.service';
-import { Node } from '../domain/node';
+import { DialogService } from '../dialog.service';
+import { Text } from '../domain/text';
 
 @Component({
   selector: 'app-context-menu',
@@ -33,6 +35,7 @@ export class ContextMenu implements OnInit {
   #destroyRef = inject(DestroyRef);
   #orchestrator = inject(Orchestrator);
   #cdr = inject(ChangeDetectorRef);
+  #dialogService = inject(DialogService);
 
   menuTemplate = input<TemplateRef<unknown>>();
   requestedTemplate = signal<TemplateRef<unknown> | null | undefined>(null);
@@ -75,11 +78,21 @@ export class ContextMenu implements OnInit {
   addNode() {
     const pos = this.menuPosition();
     if (pos === null) return;
-    const node = new Node({
-      name: 'New Text',
-      x: pos.clientX,
-      y: pos.clientY,
-    });
-    this.#orchestrator.addNode(node);
+    this.#dialogService
+      .open<{ description: string }>({
+        component: AddNodeDialog,
+        context: {},
+        backdropClass: 'bg-transparent',
+      })
+      .subscribe((v) => {
+        if (!v) return;
+        const node = new Text({
+          name: v.description,
+          x: pos.clientX,
+          y: pos.clientY,
+          text: v.description,
+        });
+        this.#orchestrator.addNode(node);
+      });
   }
 }
