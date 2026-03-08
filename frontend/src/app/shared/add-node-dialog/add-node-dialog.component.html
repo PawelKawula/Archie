@@ -1,0 +1,35 @@
+<form id="form-bug-report" [formGroup]="form" (ngSubmit)="submit()">
+  <hlm-dialog-header>
+    <h3 hlmDialogTitle>Add text</h3>
+    <p hlmDialogDescription>Add text description to your design</p>
+  </hlm-dialog-header>
+  <div class="grid gap-4 mb-4">
+    <hlm-field>
+      <label hlmFieldLabel for="description">Description</label>
+      <input
+        hlmInput
+        id="description"
+        placeholder="Login button not working on mobile"
+        autoComplete="off"
+        formControlName="description"
+      />
+      @if (form.controls.description.touched && form.controls.description.invalid) {
+        <hlm-field-error>
+          @if (
+            form.controls.description.errors?.['required'] ||
+            form.controls.description.errors?.['minlength']
+          ) {
+            Description must be at least 5 characters.
+          }
+          @if (form.controls.description.errors?.['maxlength']) {
+            Description cannot exceed 32 characters.
+          }
+        </hlm-field-error>
+      }
+    </hlm-field>
+  </div>
+  <hlm-dialog-footer>
+    <button hlmBtn variant="outline" type="button" (click)="cancel()">Cancel</button>
+    <button hlmBtn type="submit">Save changes</button>
+  </hlm-dialog-footer>
+</form>

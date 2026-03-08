@@ -9,7 +9,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Application,
   Assets,
+  BitmapText,
   type Container,
+  type ContainerChild,
   type FederatedPointerEvent,
   Sprite,
   Texture,
@@ -17,6 +19,7 @@ import {
 import { Viewport } from 'pixi-viewport';
 import { ContextMenu } from '../../shared/context-menu.service';
 import type { Node } from '../../shared/domain/node';
+import { Text } from '../../shared/domain/text';
 import { ClusterStore } from '../cluster.store';
 import { ConfigurationError } from '../exceptions';
 import { Orchestrator } from '../orchestrator.service';
@@ -132,22 +135,34 @@ export class Canvas {
     }
   }
 
+  private _createGraphics(node: Node): ContainerChild {
+    let graphics: ContainerChild;
+    if (node instanceof Text) {
+      graphics = new BitmapText({
+        text: node.text,
+        style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
+      });
+    } else {
+      graphics = new Sprite(Texture.WHITE);
+      graphics.tint = 0xff0000;
+      graphics.width = graphics.height = 50;
+    }
+
+    graphics.eventMode = 'static';
+    graphics.cursor = 'pointer';
+    return graphics;
+  }
+
   private _createNodeGraphics(node: Node): Container {
     // For now, simple representation. This should be expanded based on node.type/icon.
-    const sprite = new Sprite(Texture.WHITE);
-    sprite.tint = 0xff0000;
-    sprite.width = sprite.height = 50;
-    sprite.anchor.set(0.5);
+    const graphics = this._createGraphics(node);
 
-    sprite.eventMode = 'static';
-    sprite.cursor = 'pointer';
-
-    sprite.on('rightclick', (event) => {
+    graphics.on('rightclick', (event) => {
       event.stopPropagation();
       this.orchestrator.handleNodeRightClick(node, event);
     });
 
-    return sprite;
+    return graphics;
   }
 
   showContextMenu(event: FederatedPointerEvent) {

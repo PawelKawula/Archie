@@ -23,7 +23,12 @@
       "@spartan-ng/helm/skeleton": ["./libs/ui/skeleton/src/index.ts"],
       "@spartan-ng/helm/tooltip": ["./libs/ui/tooltip/src/index.ts"],
       "@spartan-ng/helm/context-menu": ["./libs/ui/context-menu/src/index.ts"],
-      "@spartan-ng/helm/dropdown-menu": ["./libs/ui/dropdown-menu/src/index.ts"]
+      "@spartan-ng/helm/dropdown-menu": [
+        "./libs/ui/dropdown-menu/src/index.ts"
+      ],
+      "@spartan-ng/helm/dialog": ["./libs/ui/dialog/src/index.ts"],
+      "@spartan-ng/helm/label": ["./libs/ui/label/src/index.ts"],
+      "@spartan-ng/helm/field": ["./libs/ui/field/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
