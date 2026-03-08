@@ -1,14 +1,17 @@
 import type { Connector } from './connector';
 import { Node, type NodeOptions } from './node';
 
-export type ServerOptions = NodeOptions & {
+export type ServerOptions = {
   connectors: Connector[];
 };
 
+export type _ServerOptions = NodeOptions & ServerOptions;
+
 export class Server extends Node {
   connectors: Connector[];
-  constructor(options: ServerOptions) {
+  constructor(options: _ServerOptions) {
     super(options);
     this.connectors = options.connectors ?? [];
+    this.type = 'server';
   }
 }

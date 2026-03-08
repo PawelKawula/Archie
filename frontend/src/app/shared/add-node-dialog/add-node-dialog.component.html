@@ -4,32 +4,42 @@
     <p hlmDialogDescription>Add text description to your design</p>
   </hlm-dialog-header>
   <div class="grid gap-4 mb-4">
-    <hlm-field>
-      <label hlmFieldLabel for="description">Description</label>
-      <input
-        hlmInput
-        id="description"
-        placeholder="Login button not working on mobile"
-        autoComplete="off"
-        formControlName="description"
-      />
-      @if (form.controls.description.touched && form.controls.description.invalid) {
-        <hlm-field-error>
-          @if (
-            form.controls.description.errors?.['required'] ||
-            form.controls.description.errors?.['minlength']
-          ) {
-            Description must be at least 5 characters.
+    <hlm-field-group>
+      <hlm-field orientation="responsive">
+        <hlm-field-content>
+          <label hlmFieldLabel for="type">Node type</label>
+          <hlm-field-description>Select node type</hlm-field-description>
+          @if (form.controls.type.touched && form.controls.type.invalid) {
+            <hlm-field-error>
+              @if (form.controls.type.errors?.["required"]) {
+                Please select type.
+              }
+            </hlm-field-error>
           }
-          @if (form.controls.description.errors?.['maxlength']) {
-            Description cannot exceed 32 characters.
-          }
-        </hlm-field-error>
+        </hlm-field-content>
+        <brn-select id="type" formControlName="type" placeholder="Select">
+          <hlm-select-trigger class="min-w-[120px]">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content>
+            @for (nodeType of nodeTypes; track $index) {
+              <hlm-option [value]="nodeType">{{ nodeType }}</hlm-option>
+            }
+          </hlm-select-content>
+        </brn-select>
+      </hlm-field>
+    </hlm-field-group>
+
+    <hlm-field-group>
+      @if (form.controls.type.value === "text") {
+        <app-add-text />
       }
-    </hlm-field>
+    </hlm-field-group>
   </div>
   <hlm-dialog-footer>
-    <button hlmBtn variant="outline" type="button" (click)="cancel()">Cancel</button>
-    <button hlmBtn type="submit">Save changes</button>
+    <button hlmBtn variant="outline" type="button" (click)="cancel()">
+      Cancel
+    </button>
+    <button hlmBtn type="submit" [disabled]="isInvalid()">Add</button>
   </hlm-dialog-footer>
 </form>

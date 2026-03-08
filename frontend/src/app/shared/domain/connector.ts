@@ -1,16 +1,20 @@
-import type { Node } from './node';
+import { Node, type NodeOptions } from './node';
 
 export type ConnectorOptions = {
   inNode: Node;
   outNode: Node;
 };
 
-export class Connector {
+type _ConnectorOptions = NodeOptions & ConnectorOptions;
+
+export class Connector extends Node {
   inNode: Node;
   outNode: Node;
 
-  constructor(options: ConnectorOptions) {
+  constructor(options: _ConnectorOptions) {
+    super(options);
     this.inNode = options.inNode;
     this.outNode = options.outNode;
+    this.type = 'connector';
   }
 }
