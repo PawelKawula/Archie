@@ -22,6 +22,11 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black", "--filter-files"]
+  - repo: https://github.com/JoC0de/pre-commit-prettier
+    rev: "v3.8.1"
+    hooks:
+      - id: prettier
+        types_or: [html]
   - repo: local
     hooks:
       - id: local-biome-check
