@@ -36,6 +36,7 @@
     "@spartan-ng/brain": "0.0.1-alpha.614",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "ngx-mf": "^5.2.0",
     "pixi-viewport": "^6.0.3",
     "pixi.js": "^8.16.0",
     "rxjs": "~7.8.2",
