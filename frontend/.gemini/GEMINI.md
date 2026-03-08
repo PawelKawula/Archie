@@ -20,7 +20,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 - Make sure to run biome formatter after changes, but only on frontend or src directory
 - If you introduce new features or see new edge cases add tests for them
-- Make sure that tests still pass
+- ALWAYS Make sure that tests still pass
 - Use typia assertions to make sure that we operate on correct types, especially if it's stuff fetched from backend
 
 ## TypeScript Best Practices
@@ -28,6 +28,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use strict type checking
 - Prefer type inference when the type is obvious
 - Avoid the `any` type; use `unknown` when type is uncertain
+- EVERY TIME you think that you have to use any, try casting casting to const or correct type, any MUST NOT be the first solution
 
 ## Angular Best Practices
 
@@ -37,7 +38,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Implement lazy loading for feature routes
 - Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
 - Use `NgOptimizedImage` for all static images.
-  - `NgOptimizedImage` does not work for inline base64 images.
+- `NgOptimizedImage` does not work for inline base64 images.
 - Never hardcode two same strings, instead extract it to a const variable either in shared/texts.ts if it's in many different directories or as a readonly property in class, if it doesn't fall into one of these situations ask me what to do and localize all of them
 
 ## Accessibility Requirements
@@ -56,7 +57,9 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Do NOT use `ngClass`, use `class` bindings instead
 - Do NOT use `ngStyle`, use `style` bindings instead
 - When using external templates/styles, use paths relative to the component TS file.
-- Use tailwind for styling
+- Use ng-spartan for components, create them using `ng g @spartan-ng/...`
+- When providing ng-spartan components with state use signals without parentheses, unpack them in template itself
+- DON'T edit these generated componens, libs folder is read only
 
 ## State Management
 
@@ -97,3 +100,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - The bigger the component, the more general tests should be
 - You should prefer integration tests and result of user interaction instead of implementation
 - Tests should include behaviour of pixijs, it should check if all the containers, sprites etc. are representing actual state correctly
+
+## Forms
+
+- Prefer using signal forms, then reactive forms, dont use template forms
