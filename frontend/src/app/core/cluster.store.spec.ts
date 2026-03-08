@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
-import { Node } from '../shared/domain/node';
+import { Text } from '../shared/domain/text';
 import { ClusterStore } from './cluster.store';
 
 describe('ClusterStore', () => {
@@ -20,7 +20,7 @@ describe('ClusterStore', () => {
   it('should add a node and emit event', () => {
     const observerSpy = subscribeSpyTo(store.events$);
 
-    const node = new Node({});
+    const node = new Text({ text: 'text' });
     store.addNode(node);
 
     expect(store.nodes()).toContain(node);
@@ -28,7 +28,7 @@ describe('ClusterStore', () => {
   });
 
   it('should remove a node and emit event', () => {
-    const node = new Node({});
+    const node = new Text({ text: 'text' });
     store.addNode(node);
 
     const observerSpy = subscribeSpyTo(store.events$);

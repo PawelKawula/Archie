@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Node } from '../shared/domain/node';
+import { Text } from '../shared/domain/text';
 import { ClusterStore } from './cluster.store';
 import { Orchestrator } from './orchestrator.service';
 
@@ -18,7 +18,7 @@ describe('Orchestrator', () => {
   });
 
   it('should add a node to the store', () => {
-    const node = new Node({ name: 'Test Node' });
+    const node = new Text({ name: 'Test Node', text: 'text' });
     service.addNode(node);
 
     expect(service.store.nodes().length).toBe(1);
@@ -26,7 +26,7 @@ describe('Orchestrator', () => {
   });
 
   it('should remove a node from the store', () => {
-    const node = new Node({ name: 'Test Node' });
+    const node = new Text({ name: 'Test Node', text: 'text' });
     service.addNode(node);
     service.removeNode(node.id);
 

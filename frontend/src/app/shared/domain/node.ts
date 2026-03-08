@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
+export type NodeTypes = 'text' | 'server';
+
 export interface NodeOptions {
   name?: string;
   x?: number;
@@ -7,8 +9,9 @@ export interface NodeOptions {
   icon?: string;
 }
 
-export class Node {
+export abstract class Node {
   readonly id: string;
+  type!: NodeTypes;
   readonly name: string;
   readonly icon: string;
   x: number;

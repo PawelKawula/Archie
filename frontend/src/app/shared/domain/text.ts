@@ -9,5 +9,6 @@ export class Text extends Node {
   constructor(options: TextOptions) {
     super(options);
     this.text = options.text;
+    this.type = 'text';
   }
 }
