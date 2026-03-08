@@ -27,7 +27,8 @@
         "./libs/ui/dropdown-menu/src/index.ts"
       ],
       "@spartan-ng/helm/dialog": ["./libs/ui/dialog/src/index.ts"],
-      "@spartan-ng/helm/label": ["./libs/ui/label/src/index.ts"]
+      "@spartan-ng/helm/label": ["./libs/ui/label/src/index.ts"],
+      "@spartan-ng/helm/field": ["./libs/ui/field/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
