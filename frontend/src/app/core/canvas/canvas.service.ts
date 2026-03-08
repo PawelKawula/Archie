@@ -19,6 +19,7 @@ import {
 import { Viewport } from 'pixi-viewport';
 import { ContextMenu } from '../../shared/context-menu.service';
 import type { Node } from '../../shared/domain/node';
+import { Server } from '../../shared/domain/server';
 import { Text } from '../../shared/domain/text';
 import { ClusterStore } from '../cluster.store';
 import { ConfigurationError } from '../exceptions';
@@ -142,10 +143,15 @@ export class Canvas {
         text: node.text,
         style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
       });
-    } else {
+    } else if (node instanceof Server) {
       graphics = new Sprite(Texture.WHITE);
       graphics.tint = 0xff0000;
       graphics.width = graphics.height = 50;
+    } else {
+      graphics = new BitmapText({
+        text: 'Unknown entity type',
+        style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
+      });
     }
 
     graphics.eventMode = 'static';

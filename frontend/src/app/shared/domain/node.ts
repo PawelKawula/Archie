@@ -1,13 +1,22 @@
+import type { FormType, G, T } from 'ngx-mf';
 import { v4 as uuidv4 } from 'uuid';
 
-export type NodeTypes = 'text' | 'server';
+export const NODE_TYPES = ['text', 'server', 'connector'] as const;
 
-export interface NodeOptions {
+export type NodeTypes = (typeof NODE_TYPES)[number];
+
+export type BaseNodeFormValue = { type: NodeTypes };
+
+export type NodeFormType = FormType<BaseNodeFormValue>;
+export type NodeFormGroupType = NodeFormType[T];
+export type NodeFormGroupKeysType = NodeFormType[G];
+
+export type NodeOptions = {
   name?: string;
   x?: number;
   y?: number;
   icon?: string;
-}
+};
 
 export abstract class Node {
   readonly id: string;

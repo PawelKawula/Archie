@@ -21,7 +21,8 @@ import {
   ContextMenu as ContextMenuService,
 } from '../context-menu.service';
 import { DialogService } from '../dialog.service';
-import { Text } from '../domain/text';
+import type { NodeTypes } from '../domain/node';
+import { NodeFactory } from '../node-factory.service';
 
 @Component({
   selector: 'app-context-menu',
@@ -36,6 +37,7 @@ export class ContextMenu implements OnInit {
   #orchestrator = inject(Orchestrator);
   #cdr = inject(ChangeDetectorRef);
   #dialogService = inject(DialogService);
+  #nodeFactory = inject(NodeFactory);
 
   menuTemplate = input<TemplateRef<unknown>>();
   requestedTemplate = signal<TemplateRef<unknown> | null | undefined>(null);
@@ -78,20 +80,16 @@ export class ContextMenu implements OnInit {
   addNode() {
     const pos = this.menuPosition();
     if (pos === null) return;
+    const { clientX: x, clientY: y } = pos;
     this.#dialogService
-      .open<{ description: string }>({
+      .open<{ type: NodeTypes }>({
         component: AddNodeDialog,
         context: {},
         backdropClass: 'bg-transparent',
       })
       .subscribe((v) => {
         if (!v) return;
-        const node = new Text({
-          name: v.description,
-          x: pos.clientX,
-          y: pos.clientY,
-          text: v.description,
-        });
+        const node = this.#nodeFactory.createNode({ ...v, x, y });
         this.#orchestrator.addNode(node);
       });
   }
