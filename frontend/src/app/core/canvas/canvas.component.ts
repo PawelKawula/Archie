@@ -28,6 +28,8 @@ export class Canvas implements OnInit, AfterViewInit {
   pixiContainer = viewChild.required<ElementRef>('pixiContainer');
   nodeMenuTemplate =
     viewChild.required<TemplateRef<unknown>>('nodeMenuTemplate');
+  stageMenuTemplate =
+    viewChild.required<TemplateRef<unknown>>('stageMenuTemplate');
 
   async ngOnInit() {
     await this.#canvas.init(this.pixiContainer());
@@ -35,5 +37,6 @@ export class Canvas implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.orchestrator.nodeMenuTemplate.set(this.nodeMenuTemplate());
+    this.orchestrator.stageMenuTemplate.set(this.stageMenuTemplate());
   }
 }

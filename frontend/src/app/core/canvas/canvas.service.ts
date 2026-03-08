@@ -173,6 +173,10 @@ export class Canvas {
 
   showContextMenu(event: FederatedPointerEvent) {
     event.preventDefault();
-    this.contextMenu.show({ event });
+    this.contextMenu.show({
+      event,
+      template: this.orchestrator.stageMenuTemplate(),
+      data: { x: event.clientX, y: event.clientY },
+    });
   }
 }
