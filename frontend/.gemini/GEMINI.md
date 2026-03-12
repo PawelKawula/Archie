@@ -28,7 +28,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use strict type checking
 - Prefer type inference when the type is obvious
 - Avoid the `any` type; use `unknown` when type is uncertain
-- EVERY TIME you think that you have to use any, try casting casting to const or correct type, any MUST NOT be the first solution
+- EVERY TIME you think that you have to use any or !, try casting casting to const or correct type, any MUST NOT be the first solution
 
 ## Angular Best Practices
 
@@ -96,6 +96,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## Testing
 
+- Tests are executed with ng test --no-watch
 - Tests should be thorough but not redundant
 - The bigger the component, the more general tests should be
 - You should prefer integration tests and result of user interaction instead of implementation
