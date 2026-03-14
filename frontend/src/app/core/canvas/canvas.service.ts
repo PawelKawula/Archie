@@ -10,11 +10,11 @@ import {
   Application,
   Assets,
   BitmapText,
-  type Container,
+  Container,
   type ContainerChild,
   type FederatedPointerEvent,
   Sprite,
-  Texture,
+  type Texture,
 } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { ContextMenu } from '../../shared/context-menu.service';
@@ -117,11 +117,11 @@ export class Canvas {
       });
   }
 
-  private _addNodeToCanvas(node: Node) {
+  private async _addNodeToCanvas(node: Node) {
     if (!this._viewport) return;
     if (this._renderNodes.has(node.id)) return;
 
-    const container = this._createNodeGraphics(node);
+    const container = await this._createNodeGraphics(node);
     container.position.set(node.x, node.y);
     this._viewport.addChild(container);
     this._renderNodes.set(node.id, container);
@@ -136,17 +136,17 @@ export class Canvas {
     }
   }
 
-  private _createGraphics(node: Node): ContainerChild {
+  private async _createNodeGraphics(node: Node): Promise<Container> {
+    if (node instanceof Server) {
+      return this._createServerGraphics(node);
+    }
+
     let graphics: ContainerChild;
     if (node instanceof Text) {
       graphics = new BitmapText({
         text: node.text,
         style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
       });
-    } else if (node instanceof Server) {
-      graphics = new Sprite(Texture.WHITE);
-      graphics.tint = 0xff0000;
-      graphics.width = graphics.height = 50;
     } else {
       graphics = new BitmapText({
         text: 'Unknown entity type',
@@ -156,19 +156,45 @@ export class Canvas {
 
     graphics.eventMode = 'static';
     graphics.cursor = 'pointer';
-    return graphics;
-  }
-
-  private _createNodeGraphics(node: Node): Container {
-    // For now, simple representation. This should be expanded based on node.type/icon.
-    const graphics = this._createGraphics(node);
-
     graphics.on('rightclick', (event) => {
       event.stopPropagation();
       this.orchestrator.handleNodeRightClick(node, event);
     });
 
     return graphics;
+  }
+
+  private async _createServerGraphics(node: Server): Promise<Container> {
+    // SVGs have a 16×16 viewBox; rasterize at 3× devicePixelRatio so the
+    // 48 px sprite stays crisp on HiDPI screens (16 × resolution ≥ 48 × dpr).
+    const resolution = 4 * (globalThis.devicePixelRatio ?? 1);
+    const texture = await Assets.load<Texture>({
+      src: node.icon,
+      data: { resolution },
+    });
+
+    const sprite = new Sprite(texture);
+    sprite.width = sprite.height = 48;
+
+    const label = new BitmapText({
+      text: node.name,
+      style: { fontFamily: 'Hack-Regular.fnt', fontSize: 10, fill: 'ffffff' },
+    });
+    label.x = 24;
+    label.y = 52;
+    label.anchor.set(0.5, 0);
+
+    const container = new Container();
+    container.addChild(sprite);
+    container.addChild(label);
+    container.eventMode = 'static';
+    container.cursor = 'pointer';
+    container.on('rightclick', (event) => {
+      event.stopPropagation();
+      this.orchestrator.handleNodeRightClick(node, event);
+    });
+
+    return container;
   }
 
   showContextMenu(event: FederatedPointerEvent) {

@@ -19,6 +19,7 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { distinctUntilChanged, map, startWith } from 'rxjs';
 import type { ValueOfForm } from '../../../types';
 import { NODE_TYPES, type NodeFormGroupKeysType } from '../domain/node';
+import { AddServer } from './add-server/add-server.component';
 import { AddText } from './add-text/add-text.component';
 
 type FormValue = ValueOfForm<AddNodeDialog['form']>;
@@ -35,6 +36,7 @@ type FormValue = ValueOfForm<AddNodeDialog['form']>;
     BrnSelectImports,
     HlmSelectImports,
     AddText,
+    AddServer,
   ],
   templateUrl: './add-node-dialog.component.html',
   styleUrl: './add-node-dialog.component.css',

@@ -1,13 +1,12 @@
 <form id="form-bug-report" [formGroup]="form" (ngSubmit)="submit()">
-  <hlm-dialog-header>
-    <h3 hlmDialogTitle>Add text</h3>
-    <p hlmDialogDescription>Add text description to your design</p>
+  <hlm-dialog-header class="mb-4">
+    <h3 hlmDialogTitle>Add node</h3>
+    <p hlmDialogDescription>Configure and add a node to your design</p>
   </hlm-dialog-header>
   <div class="grid gap-4 mb-4">
     <hlm-field-group>
       <hlm-field orientation="responsive">
         <hlm-field-content>
-          <label hlmFieldLabel for="type">Node type</label>
           <hlm-field-description>Select node type</hlm-field-description>
           @if (form.controls.type.touched && form.controls.type.invalid) {
             <hlm-field-error>
@@ -33,6 +32,9 @@
     <hlm-field-group>
       @if (form.controls.type.value === "text") {
         <app-add-text />
+      }
+      @if (form.controls.type.value === "server") {
+        <app-add-server />
       }
     </hlm-field-group>
   </div>

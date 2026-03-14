@@ -1,0 +1,49 @@
+<hlm-field-group [formGroup]="form">
+  <hlm-field>
+    <label hlmFieldLabel for="name">Name</label>
+    <input
+      hlmInput
+      id="name"
+      placeholder="..."
+      autoComplete="off"
+      formControlName="name"
+    />
+    @if (form.controls.name.touched && form.controls.name.invalid) {
+      <hlm-field-error>
+        @if (
+          form.controls.name.errors?.["required"] ||
+          form.controls.name.errors?.["minlength"]
+        ) {
+          Name must be at least 1 character.
+        }
+        @if (form.controls.name.errors?.["maxlength"]) {
+          Text cannot exceed 32 characters.
+        }
+      </hlm-field-error>
+    }
+  </hlm-field>
+  <hlm-field-group>
+    <fieldset hlmFieldSet>
+      <legend hlmFieldLegend>Icon</legend>
+      <hlm-field-description>Select an icon for server</hlm-field-description>
+      <hlm-radio-group formControlName="icon" class="grid-cols-3">
+        @for (icon of icons; track icon.key) {
+          <label hlmFieldLabel [for]="'icon-' + icon.key">
+            <hlm-field orientation="horizontal" class="block">
+              <hlm-field-content class="items-center">
+                <hlm-field-description
+                  ><img [src]="icon.key"
+                /></hlm-field-description>
+              </hlm-field-content>
+              <hlm-radio [value]="icon.key" [id]="'icon-' + icon.key">
+              </hlm-radio>
+            </hlm-field>
+          </label>
+        }
+      </hlm-radio-group>
+      @if (form.controls.icon.invalid && form.controls.icon.touched) {
+        <hlm-field-error>You must select an icon to continue.</hlm-field-error>
+      }
+    </fieldset>
+  </hlm-field-group>
+</hlm-field-group>
