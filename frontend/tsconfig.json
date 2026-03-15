@@ -31,7 +31,8 @@
       "@spartan-ng/helm/field": ["./libs/ui/field/src/index.ts"],
       "@spartan-ng/helm/select": ["./libs/ui/select/src/index.ts"],
       "@spartan-ng/helm/card": ["./libs/ui/card/src/index.ts"],
-      "@spartan-ng/helm/radio-group": ["./libs/ui/radio-group/src/index.ts"]
+      "@spartan-ng/helm/radio-group": ["./libs/ui/radio-group/src/index.ts"],
+      "@spartan-ng/helm/popover": ["./libs/ui/popover/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
