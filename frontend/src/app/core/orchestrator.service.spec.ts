@@ -48,30 +48,32 @@ describe('Orchestrator', () => {
       expect(service.connectionPickState()).toEqual(IDLE);
     });
 
-    it('connectionMenuAction label is "Create connection" in idle', () => {
-      expect(service.connectionMenuAction().label).toBe('Create connection');
+    it('startConnectionFromNode moves state to pickTarget with the given server as source', () => {
+      const server = new Server({ name: 'S', icon: 'x', connectors: [] });
+      service.startConnectionFromNode(server);
+      const state = service.connectionPickState();
+      expect(state.step).toBe('pickTarget');
+      if (state.step === 'pickTarget') {
+        expect(state.source).toBe(server);
+      }
     });
 
-    it('connectionMenuAction handler moves state to pickSource', () => {
-      service.connectionMenuAction().handler();
-      expect(service.connectionPickState().step).toBe('pickSource');
+    it('startConnectionFromNode ignores non-Server nodes', () => {
+      service.startConnectionFromNode(new Text({ text: 'hi' }));
+      expect(service.connectionPickState()).toEqual(IDLE);
     });
 
-    it('connectionMenuAction label is "Cancel connection" when not idle', () => {
-      service.connectionMenuAction().handler();
-      expect(service.connectionMenuAction().label).toBe('Cancel connection');
-    });
-
-    it('connectionMenuAction cancel handler returns to idle', () => {
-      service.connectionMenuAction().handler(); // idle → pickSource
-      service.connectionMenuAction().handler(); // pickSource → idle
+    it('cancelConnection resets state to idle', () => {
+      const server = new Server({ name: 'S', icon: 'x', connectors: [] });
+      service.startConnectionFromNode(server);
+      service.cancelConnection();
       expect(service.connectionPickState()).toEqual(IDLE);
     });
   });
 
   describe('pickNodeForConnection', () => {
     it('ignores non-Server nodes and leaves state unchanged', () => {
-      service.connectionMenuAction().handler(); // idle → pickSource
+      service.connectionPickState.set({ step: 'pickSource' });
       service.pickNodeForConnection(new Text({ text: 'hi' }));
       expect(service.connectionPickState().step).toBe('pickSource');
     });
@@ -85,7 +87,7 @@ describe('Orchestrator', () => {
 
     it('in pickSource transitions to pickTarget with the picked server as source', () => {
       const server = new Server({ name: 'S', icon: 'x', connectors: [] });
-      service.connectionMenuAction().handler(); // idle → pickSource
+      service.connectionPickState.set({ step: 'pickSource' });
       service.pickNodeForConnection(server);
 
       const state = service.connectionPickState();
@@ -98,7 +100,7 @@ describe('Orchestrator', () => {
     it('in pickTarget resets to idle after picking the target server', () => {
       const server1 = new Server({ name: 'A', icon: 'x', connectors: [] });
       const server2 = new Server({ name: 'B', icon: 'x', connectors: [] });
-      service.connectionMenuAction().handler(); // idle → pickSource
+      service.connectionPickState.set({ step: 'pickSource' });
       service.pickNodeForConnection(server1); // pickSource → pickTarget
       service.pickNodeForConnection(server2); // pickTarget → idle + dialog
       expect(service.connectionPickState()).toEqual(IDLE);

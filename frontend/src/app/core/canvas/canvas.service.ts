@@ -47,9 +47,11 @@ export class Canvas {
   private readonly _connectors: Connector[] = [];
   private readonly _CONNECTION_OFFSET_SPACING = 30;
   private readonly _NODE_HALF_SIZE = 24;
+  private readonly _abortController = new AbortController();
 
   constructor() {
     this._setupSync();
+    this.destroyRef.onDestroy(() => this._abortController.abort());
   }
 
   get app() {
@@ -79,7 +81,7 @@ export class Canvas {
   async init(domContainer: ElementRef) {
     this._app = new Application();
 
-    await this._app.init({
+    await this.app.init({
       background: '#1099bb',
       resizeTo: window,
       antialias: true,
@@ -87,26 +89,26 @@ export class Canvas {
 
     await Assets.load('fonts/Hack-Regular/Hack-Regular.fnt');
     // @ts-expect-error
-    globalThis.__PIXI_APP__ = this._app;
+    globalThis.__PIXI_APP__ = this.app;
     // @ts-expect-error
     globalThis.__archie__ = {
       snapshot: () => this.store.toSnapshot(),
       store: this.store,
     };
 
-    domContainer.nativeElement.appendChild(this._app.canvas);
+    domContainer.nativeElement.appendChild(this.app.canvas);
 
     this._viewport = new Viewport({
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
       worldWidth: 1000,
       worldHeight: 1000,
-      events: this._app.renderer.events,
+      events: this.app.renderer.events,
     });
 
-    this._app.stage.addChild(this._viewport);
+    this.app.stage.addChild(this.viewport);
 
-    this._viewport
+    this.viewport
       .drag({
         mouseButtons: 'middle',
       })
@@ -114,9 +116,24 @@ export class Canvas {
       .wheel()
       .decelerate();
 
-    this._app.stage.eventMode = 'static';
-    this._app.stage.on('rightclick', (ev) =>
+    this.app.stage.eventMode = 'static';
+    this.app.stage.on('rightclick', (ev) =>
       this.showContextMenu(ev as FederatedPointerEvent),
+    );
+    this.app.stage.on('pointerdown', (ev) => {
+      if (
+        ev.button === 0 &&
+        this.orchestrator.connectionPickState().step !== 'idle'
+      ) {
+        this.orchestrator.cancelConnection();
+      }
+    });
+    window.addEventListener(
+      'keydown',
+      (ev) => {
+        if (ev.key === 'Escape') this.orchestrator.cancelConnection();
+      },
+      { signal: this._abortController.signal },
     );
 
     this._nodesLayer = new Container();

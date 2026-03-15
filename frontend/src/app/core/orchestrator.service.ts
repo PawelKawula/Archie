@@ -1,5 +1,4 @@
 import {
-  computed,
   DestroyRef,
   Injectable,
   inject,
@@ -21,7 +20,6 @@ import { ClusterStore } from './cluster.store';
 import {
   type ConnectionPickState,
   IDLE,
-  menuLabel,
   transition,
 } from './connection-pick-state';
 
@@ -38,17 +36,6 @@ export class Orchestrator {
   readonly nodeMenuTemplate = signal<TemplateRef<unknown> | null>(null);
   readonly stageMenuTemplate = signal<TemplateRef<unknown> | null>(null);
   readonly connectionPickState = signal<ConnectionPickState>(IDLE);
-
-  readonly connectionMenuAction = computed(() => {
-    const state = this.connectionPickState();
-    return {
-      label: menuLabel(state),
-      handler:
-        state.step === 'idle'
-          ? () => this.connectionPickState.set({ step: 'pickSource' })
-          : () => this.connectionPickState.set(IDLE),
-    };
-  });
 
   addNode(node: Node) {
     this.store.addNode(node);
@@ -79,6 +66,15 @@ export class Orchestrator {
         const node = this.nodeFactory.createNode({ ...v, x, y });
         this.addNode(node);
       });
+  }
+
+  startConnectionFromNode(node: Node) {
+    if (!(node instanceof Server)) return;
+    this.connectionPickState.set({ step: 'pickTarget', source: node });
+  }
+
+  cancelConnection() {
+    this.connectionPickState.set(IDLE);
   }
 
   pickNodeForConnection(node: Node) {
