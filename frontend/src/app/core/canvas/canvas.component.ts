@@ -12,11 +12,17 @@ import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { ContextMenu } from '../../shared/context-menu/context-menu.component';
 import { Orchestrator } from '../orchestrator.service';
+import { SimulationPopover } from '../simulation-popover/simulation-popover.component';
 import { Canvas as CanvasService } from './canvas.service';
 
 @Component({
   selector: 'app-canvas',
-  imports: [ContextMenu, HlmContextMenuImports, HlmDropdownMenuImports],
+  imports: [
+    ContextMenu,
+    HlmContextMenuImports,
+    HlmDropdownMenuImports,
+    SimulationPopover,
+  ],
   templateUrl: './canvas.component.html',
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,

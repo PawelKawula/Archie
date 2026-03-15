@@ -1,6 +1,7 @@
 <div class="relative w-full h-full" (contextmenu)="$event.preventDefault()">
   <div #pixiContainer></div>
   <app-context-menu [menuTemplate]="stageMenuTemplate"> </app-context-menu>
+  <app-simulation-popover class="bottom-4 left-1/2 -translate-x-1/2" />
 </div>
 
 <ng-template #nodeMenuTemplate let-node>
