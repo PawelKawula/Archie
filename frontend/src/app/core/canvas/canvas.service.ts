@@ -42,11 +42,15 @@ export class Canvas {
   // Registry to map domain nodes to their visual representations
   private readonly _renderNodes = new Map<string, Container>();
   private readonly _renderConnections = new Map<string, Graphics>();
+  private readonly _connectionLabels = new Map<string, Container>();
+  private readonly _connectionTickerCallbacks = new Map<string, () => void>();
   private _nodesLayer: Container | null = null;
   private _connectorsLayer: Container | null = null;
   private readonly _connectors: Connector[] = [];
   private readonly _CONNECTION_OFFSET_SPACING = 30;
   private readonly _NODE_HALF_SIZE = 24;
+  private readonly _SERVER_NODE_WIDTH = 160;
+  private readonly _SERVER_NODE_HEIGHT = 80;
   private readonly _abortController = new AbortController();
 
   constructor() {
@@ -140,6 +144,7 @@ export class Canvas {
     this.viewport.addChild(this.nodesLayer);
 
     this._connectorsLayer = new Container();
+    this._connectorsLayer.sortableChildren = true;
     this.viewport.addChild(this._connectorsLayer);
 
     // Initial sync of existing nodes (must complete before connections are drawn)
@@ -193,6 +198,7 @@ export class Canvas {
         gfx.destroy();
         this._renderConnections.delete(connector.id);
       }
+      this._destroyConnectionLabel(connector.id);
       this._connectors.splice(this._connectors.indexOf(connector), 1);
     }
     for (const connector of this._connectors) {
@@ -241,6 +247,21 @@ export class Canvas {
     });
     this._connectorsLayer.addChild(gfx);
     this._renderConnections.set(connector.id, gfx);
+
+    const { label, tick } = this._createConnectionLabel(connector);
+    gfx.on('pointerover', () => {
+      gfx.zIndex = 1;
+      label.zIndex = 1;
+    });
+    gfx.on('pointerout', () => {
+      gfx.zIndex = 0;
+      label.zIndex = 0;
+    });
+    this._connectorsLayer.addChild(label);
+    this._connectionLabels.set(connector.id, label);
+    this.app.ticker.add(tick);
+    this._connectionTickerCallbacks.set(connector.id, tick);
+
     this._connectors.push(connector);
     this._redrawConnection(connector);
   }
@@ -253,6 +274,7 @@ export class Canvas {
       gfx.destroy();
       this._renderConnections.delete(connectionId);
     }
+    this._destroyConnectionLabel(connectionId);
     this._connectors.splice(this._connectors.indexOf(connector), 1);
     for (const c of this._connectors) {
       if (
@@ -273,10 +295,8 @@ export class Canvas {
 
     gfx.clear();
 
-    const x1 = outC.x + this._NODE_HALF_SIZE;
-    const y1 = outC.y + this._NODE_HALF_SIZE;
-    const x2 = inC.x + this._NODE_HALF_SIZE;
-    const y2 = inC.y + this._NODE_HALF_SIZE;
+    const { x: x1, y: y1 } = this._getNodeCenter(connector.outNode, outC);
+    const { x: x2, y: y2 } = this._getNodeCenter(connector.inNode, inC);
 
     const keyA =
       connector.outNode.id < connector.inNode.id
@@ -299,8 +319,10 @@ export class Canvas {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    const px = -dy / len;
-    const py = dx / len;
+    // Canonical sign ensures A→B and B→A arc on opposite sides of the line
+    const canonSign = connector.outNode.id < connector.inNode.id ? 1 : -1;
+    const px = canonSign * (-dy / len);
+    const py = canonSign * (dx / len);
     const offsetMag =
       this._CONNECTION_OFFSET_SPACING * (index - (count - 1) / 2);
     const cpx = mx + px * offsetMag;
@@ -326,6 +348,93 @@ export class Canvas {
       .lineTo(bx + tny * ARROW_HALF, by - tnx * ARROW_HALF)
       .closePath()
       .fill({ color: 0xffffff });
+
+    const label = this._connectionLabels.get(connector.id);
+    if (label) {
+      // Quadratic bezier point at t=0.5: (P0 + 2*P1 + P2) / 4
+      const midX = (x1 + 2 * cpx + x2) / 4;
+      const midY = (y1 + 2 * cpy + y2) / 4;
+      label.x = midX - label.width / 2;
+      label.y = midY - label.height / 2;
+    }
+  }
+
+  private _createConnectionLabel(connector: Connector): {
+    label: Container;
+    tick: () => void;
+  } {
+    const PADDING = 6;
+    const LINE_H = 14;
+    const W = 90;
+    const H = PADDING * 2 + LINE_H * 3;
+
+    const bg = new Graphics()
+      .rect(0, 0, W, H)
+      .fill({ color: 0x1e1e2e })
+      .rect(0, 0, W, H)
+      .stroke({ color: 0x4a90d9, width: 1 });
+
+    const style = {
+      fontFamily: 'Hack-Regular.fnt',
+      fontSize: 10,
+      fill: 'ffffff',
+    };
+    const outText = new BitmapText({ text: '', style });
+    outText.x = PADDING;
+    outText.y = PADDING;
+
+    const transitText = new BitmapText({ text: '', style });
+    transitText.x = PADDING;
+    transitText.y = PADDING + LINE_H;
+
+    const arrivedText = new BitmapText({ text: '', style });
+    arrivedText.x = PADDING;
+    arrivedText.y = PADDING + LINE_H * 2;
+
+    const label = new Container();
+    label.addChild(bg);
+    label.addChild(outText);
+    label.addChild(transitText);
+    label.addChild(arrivedText);
+
+    const tick = () => {
+      const c = connector.connection;
+      outText.text = `out:     ${c.outSize}/${c.outMaxSize}`;
+      transitText.text = `transit: ${c.transitSize}/${c.transitMaxSize}`;
+      arrivedText.text = `arrived: ${c.arrivedSize}/${c.arrivedMaxSize}`;
+    };
+    tick();
+
+    return { label, tick };
+  }
+
+  private _destroyConnectionLabel(connectionId: string): void {
+    const tick = this._connectionTickerCallbacks.get(connectionId);
+    if (tick) {
+      this.app.ticker.remove(tick);
+      this._connectionTickerCallbacks.delete(connectionId);
+    }
+    const label = this._connectionLabels.get(connectionId);
+    if (label) {
+      label.destroy({ children: true });
+      this._connectionLabels.delete(connectionId);
+    }
+  }
+
+  private _getNodeCenter(
+    node: Node,
+    container: Container,
+  ): { x: number; y: number } {
+    if (node instanceof Server) {
+      return {
+        x: container.x + this._SERVER_NODE_WIDTH / 2,
+        y: container.y + this._SERVER_NODE_HEIGHT / 2,
+      };
+    }
+    return {
+      x: container.x + this._NODE_HALF_SIZE,
+      y: container.y + this._NODE_HALF_SIZE,
+    };
   }
 
   private _redrawConnectionsForNode(nodeId: string): void {
@@ -366,33 +475,43 @@ export class Canvas {
   }
 
   private async _createServerGraphics(node: Server): Promise<Container> {
-    // SVGs have a 16×16 viewBox; rasterize at 3× devicePixelRatio so the
-    // 48 px sprite stays crisp on HiDPI screens (16 × resolution ≥ 48 × dpr).
+    const W = this._SERVER_NODE_WIDTH;
+    const H = this._SERVER_NODE_HEIGHT;
+    const ICON_SIZE = 32;
+    const PADDING = 10;
+
+    const bg = new Graphics()
+      .rect(0, 0, W, H)
+      .fill({ color: 0x1e1e2e })
+      .rect(0, 0, W, H)
+      .stroke({ color: 0x4a90d9, width: 2 });
+
+    const nameText = new BitmapText({
+      text: node.name,
+      style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
+    });
+    nameText.x = PADDING;
+    nameText.y = PADDING;
+
     const resolution = 4 * (globalThis.devicePixelRatio ?? 1);
     const texture = await Assets.load<Texture>({
       src: node.icon,
       data: { resolution },
     });
-
     const sprite = new Sprite(texture);
-    sprite.width = sprite.height = 48;
-
-    const label = new BitmapText({
-      text: node.name,
-      style: { fontFamily: 'Hack-Regular.fnt', fontSize: 10, fill: 'ffffff' },
-    });
-    label.x = 24;
-    label.y = 52;
-    label.anchor.set(0.5, 0);
+    sprite.width = sprite.height = ICON_SIZE;
+    sprite.x = W - ICON_SIZE - PADDING;
+    sprite.y = H - ICON_SIZE - PADDING;
 
     const highlight = new Graphics()
-      .rect(-4, -4, 56, 56)
+      .rect(-2, -2, W + 4, H + 4)
       .stroke({ color: 0xffd700, width: 3 });
     highlight.visible = false;
 
     const container = new Container();
+    container.addChild(bg);
+    container.addChild(nameText);
     container.addChild(sprite);
-    container.addChild(label);
     container.addChild(highlight);
     container.eventMode = 'static';
     container.cursor = 'pointer';

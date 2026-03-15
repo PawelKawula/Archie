@@ -54,6 +54,10 @@ export class AsyncQueue<T extends {} | null> {
     return this.items.length;
   }
 
+  get maxSize(): number {
+    return this.maxsize;
+  }
+
   get full(): boolean {
     return this.maxsize > 0 && this.items.length >= this.maxsize;
   }

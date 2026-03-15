@@ -42,13 +42,22 @@ export class Connection {
   get outSize() {
     return this.outQueue.size;
   }
+  get outMaxSize() {
+    return this.outQueue.maxSize;
+  }
 
   get transitSize() {
     return this.transitQueue.size;
   }
+  get transitMaxSize() {
+    return this.transitQueue.maxSize;
+  }
 
   get arrivedSize() {
     return this.arrivedQueue.size;
+  }
+  get arrivedMaxSize() {
+    return this.arrivedQueue.maxSize;
   }
 
   toSnapshot(): ConnectionSnapshot {
