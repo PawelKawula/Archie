@@ -11,7 +11,6 @@ import {
   Assets,
   BitmapText,
   Container,
-  type ContainerChild,
   type FederatedPointerEvent,
   Sprite,
   type Texture,
@@ -141,7 +140,7 @@ export class Canvas {
       return this._createServerGraphics(node);
     }
 
-    let graphics: ContainerChild;
+    let graphics: Container;
     if (node instanceof Text) {
       graphics = new BitmapText({
         text: node.text,
@@ -160,6 +159,7 @@ export class Canvas {
       event.stopPropagation();
       this.orchestrator.handleNodeRightClick(node, event);
     });
+    this._setupDrag(node, graphics);
 
     return graphics;
   }
@@ -193,8 +193,43 @@ export class Canvas {
       event.stopPropagation();
       this.orchestrator.handleNodeRightClick(node, event);
     });
+    this._setupDrag(node, container);
 
     return container;
+  }
+
+  private _setupDrag(node: Node, container: Container) {
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    const onMove = (event: FederatedPointerEvent) => {
+      const worldPos = event.getLocalPosition(this.viewport);
+      container.position.set(
+        worldPos.x - dragOffsetX,
+        worldPos.y - dragOffsetY,
+      );
+    };
+
+    const stopDrag = () => {
+      this.app.stage.off('pointermove', onMove);
+      this.app.stage.off('pointerup', stopDrag);
+      this.viewport.plugins.resume('drag');
+      container.cursor = 'pointer';
+      node.x = container.x;
+      node.y = container.y;
+    };
+
+    container.on('pointerdown', (event: FederatedPointerEvent) => {
+      if (event.button !== 0) return;
+      event.stopPropagation();
+      const worldPos = event.getLocalPosition(this.viewport);
+      dragOffsetX = worldPos.x - container.x;
+      dragOffsetY = worldPos.y - container.y;
+      this.viewport.plugins.pause('drag');
+      this.app.stage.on('pointermove', onMove);
+      this.app.stage.on('pointerup', stopDrag);
+      container.cursor = 'grabbing';
+    });
   }
 
   showContextMenu(event: FederatedPointerEvent) {
