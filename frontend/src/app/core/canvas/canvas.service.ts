@@ -83,7 +83,7 @@ export class Canvas {
 
     this._viewport
       .drag({
-        mouseButtons: 'left',
+        mouseButtons: 'middle',
       })
       .pinch()
       .wheel()
