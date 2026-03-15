@@ -25,6 +25,12 @@
       >
         Add node
       </button>
+      <button
+        hlmDropdownMenuItem
+        (triggered)="orchestrator.connectionMenuAction().handler()"
+      >
+        {{ orchestrator.connectionMenuAction().label }}
+      </button>
     </hlm-dropdown-menu-group>
   </hlm-dropdown-menu>
 </ng-template>

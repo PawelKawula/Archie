@@ -1,5 +1,6 @@
 import { Connection, type ConnectionOptions } from './connection';
 import { Node, type NodeOptions } from './node';
+import type { ConnectorSnapshot } from './snapshot';
 
 export type ConnectorOptions = {
   inNode: Node;
@@ -20,5 +21,14 @@ export class Connector extends Node {
     this.inNode = options.inNode;
     this.outNode = options.outNode;
     this.type = 'connector';
+  }
+
+  override toSnapshot(): ConnectorSnapshot {
+    return {
+      ...super.toSnapshot(),
+      fromNodeId: this.outNode.id,
+      toNodeId: this.inNode.id,
+      connection: this.connection.toSnapshot(),
+    };
   }
 }

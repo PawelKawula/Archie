@@ -2,7 +2,7 @@ import { assert } from '../../core/utils';
 
 // biome-ignore lint/complexity/noBannedTypes: just make sure it's not undefined
 export class AsyncQueue<T extends {} | null> {
-  private items: T[] = [];
+  private readonly items: T[] = [];
   private readonly maxsize: number;
 
   private getters: ((value: T) => void)[] = [];
@@ -56,5 +56,9 @@ export class AsyncQueue<T extends {} | null> {
 
   get full(): boolean {
     return this.maxsize > 0 && this.items.length >= this.maxsize;
+  }
+
+  toSnapshot(): { items: readonly T[]; maxsize: number } {
+    return { items: [...this.items], maxsize: this.maxsize };
   }
 }

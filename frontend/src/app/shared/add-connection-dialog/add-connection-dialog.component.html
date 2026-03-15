@@ -1,0 +1,65 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <hlm-dialog-header class="mb-4">
+    <h3 hlmDialogTitle>Create connection</h3>
+    <p hlmDialogDescription>Configure queue sizes for the connection</p>
+  </hlm-dialog-header>
+
+  <div class="grid gap-4 mb-4">
+    <hlm-field>
+      <label hlmFieldLabel for="outQueueSize">Out queue size</label>
+      <input
+        hlmInput
+        type="number"
+        id="outQueueSize"
+        formControlName="outQueueSize"
+        min="1"
+      />
+      @if (
+        form.controls.outQueueSize.touched && form.controls.outQueueSize.invalid
+      ) {
+        <hlm-field-error>Must be at least 1.</hlm-field-error>
+      }
+    </hlm-field>
+
+    <hlm-field>
+      <label hlmFieldLabel for="transitQueueSize">Transit queue size</label>
+      <input
+        hlmInput
+        type="number"
+        id="transitQueueSize"
+        formControlName="transitQueueSize"
+        min="1"
+      />
+      @if (
+        form.controls.transitQueueSize.touched &&
+        form.controls.transitQueueSize.invalid
+      ) {
+        <hlm-field-error>Must be at least 1.</hlm-field-error>
+      }
+    </hlm-field>
+
+    <hlm-field>
+      <label hlmFieldLabel for="arrivedQueueSize">Arrived queue size</label>
+      <input
+        hlmInput
+        type="number"
+        id="arrivedQueueSize"
+        formControlName="arrivedQueueSize"
+        min="1"
+      />
+      @if (
+        form.controls.arrivedQueueSize.touched &&
+        form.controls.arrivedQueueSize.invalid
+      ) {
+        <hlm-field-error>Must be at least 1.</hlm-field-error>
+      }
+    </hlm-field>
+  </div>
+
+  <hlm-dialog-footer>
+    <button hlmBtn variant="outline" type="button" (click)="cancel()">
+      Cancel
+    </button>
+    <button hlmBtn type="submit" [disabled]="isInvalid()">Create</button>
+  </hlm-dialog-footer>
+</form>
