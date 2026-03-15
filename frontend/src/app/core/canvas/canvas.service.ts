@@ -164,6 +164,8 @@ export class Canvas {
           this._addNodeToCanvas(event.node);
         } else if (event.type === 'nodeRemoved') {
           this._removeNodeFromCanvas(event.nodeId);
+        } else if (event.type === 'nodeUpdated') {
+          this._refreshNodeGraphics(event.node);
         } else if (event.type === 'connectionAdded') {
           this._addConnectionToCanvas(event.connection);
         } else if (event.type === 'connectionRemoved') {
@@ -208,6 +210,20 @@ export class Canvas {
       container.destroy({ children: true });
       this._renderNodes.delete(nodeId);
     }
+  }
+
+  private async _refreshNodeGraphics(node: Node): Promise<void> {
+    const old = this._renderNodes.get(node.id);
+    if (old) {
+      this.nodesLayer.removeChild(old);
+      old.destroy({ children: true });
+      this._renderNodes.delete(node.id);
+    }
+    const container = await this._createNodeGraphics(node);
+    container.position.set(node.x, node.y);
+    this.nodesLayer.addChild(container);
+    this._renderNodes.set(node.id, container);
+    this._redrawConnectionsForNode(node.id);
   }
 
   private _addConnectionToCanvas(connector: Connector): void {
@@ -328,7 +344,7 @@ export class Canvas {
     let graphics: Container;
     if (node instanceof Text) {
       graphics = new BitmapText({
-        text: node.text,
+        text: node.name,
         style: { fontFamily: 'Hack-Regular.fnt', fontSize: 12, fill: 'ffffff' },
       });
     } else {

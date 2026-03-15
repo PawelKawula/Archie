@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BrnDialogRef } from '@spartan-ng/brain/dialog';
+import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
@@ -23,6 +23,9 @@ import { AddServer } from './add-server/add-server.component';
 import { AddText } from './add-text/add-text.component';
 
 type FormValue = ValueOfForm<AddNodeDialog['form']>;
+export type EditNodeContext =
+  | { type: 'server'; name: string; icon: string }
+  | { type: 'text'; name: string };
 
 @Component({
   selector: 'app-add-node-dialog',
@@ -47,9 +50,17 @@ export class AddNodeDialog implements OnInit {
   readonly #dialogRef = inject<BrnDialogRef<FormValue>>(BrnDialogRef);
   readonly #cdr = inject(ChangeDetectorRef);
   readonly #destroyRef = inject(DestroyRef);
+  readonly #initial = injectBrnDialogContext<EditNodeContext>({
+    optional: true,
+  });
+
+  readonly isEditing = !!(this.#initial && 'type' in this.#initial);
 
   public form = this.#fb.group<NodeFormGroupKeysType>({
-    type: this.#fb.nonNullable.control('text', [Validators.required]),
+    type: this.#fb.nonNullable.control(
+      this.isEditing ? (this.#initial as EditNodeContext).type : 'text',
+      [Validators.required],
+    ),
   });
 
   ngOnInit(): void {

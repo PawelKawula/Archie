@@ -1,33 +1,43 @@
 <form id="form-bug-report" [formGroup]="form" (ngSubmit)="submit()">
   <hlm-dialog-header class="mb-4">
-    <h3 hlmDialogTitle>Add node</h3>
-    <p hlmDialogDescription>Configure and add a node to your design</p>
+    <h3 hlmDialogTitle>
+      {{ isEditing ? "Edit " + form.controls.type.value : "Add node" }}
+    </h3>
+    <p hlmDialogDescription>
+      {{
+        isEditing
+          ? "Update this " + form.controls.type.value
+          : "Configure and add a node to your design"
+      }}
+    </p>
   </hlm-dialog-header>
   <div class="grid gap-4 mb-4">
-    <hlm-field-group>
-      <hlm-field orientation="responsive">
-        <hlm-field-content>
-          <hlm-field-description>Select node type</hlm-field-description>
-          @if (form.controls.type.touched && form.controls.type.invalid) {
-            <hlm-field-error>
-              @if (form.controls.type.errors?.["required"]) {
-                Please select type.
-              }
-            </hlm-field-error>
-          }
-        </hlm-field-content>
-        <brn-select id="type" formControlName="type" placeholder="Select">
-          <hlm-select-trigger class="min-w-[120px]">
-            <hlm-select-value />
-          </hlm-select-trigger>
-          <hlm-select-content>
-            @for (nodeType of nodeTypes; track $index) {
-              <hlm-option [value]="nodeType">{{ nodeType }}</hlm-option>
+    @if (!isEditing) {
+      <hlm-field-group>
+        <hlm-field orientation="responsive">
+          <hlm-field-content>
+            <hlm-field-description>Select node type</hlm-field-description>
+            @if (form.controls.type.touched && form.controls.type.invalid) {
+              <hlm-field-error>
+                @if (form.controls.type.errors?.["required"]) {
+                  Please select type.
+                }
+              </hlm-field-error>
             }
-          </hlm-select-content>
-        </brn-select>
-      </hlm-field>
-    </hlm-field-group>
+          </hlm-field-content>
+          <brn-select id="type" formControlName="type" placeholder="Select">
+            <hlm-select-trigger class="min-w-[120px]">
+              <hlm-select-value />
+            </hlm-select-trigger>
+            <hlm-select-content>
+              @for (nodeType of nodeTypes; track $index) {
+                <hlm-option [value]="nodeType">{{ nodeType }}</hlm-option>
+              }
+            </hlm-select-content>
+          </brn-select>
+        </hlm-field>
+      </hlm-field-group>
+    }
 
     <hlm-field-group>
       @if (form.controls.type.value === "text") {
@@ -42,6 +52,8 @@
     <button hlmBtn variant="outline" type="button" (click)="cancel()">
       Cancel
     </button>
-    <button hlmBtn type="submit" [disabled]="isInvalid()">Add</button>
+    <button hlmBtn type="submit" [disabled]="isInvalid()">
+      {{ isEditing ? "Save" : "Add" }}
+    </button>
   </hlm-dialog-footer>
 </form>

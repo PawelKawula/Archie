@@ -7,8 +7,8 @@ describe('Connector', () => {
   let connector: Connector;
 
   beforeEach(() => {
-    inNode = new Text({ text: 'in' });
-    outNode = new Text({ text: 'out' });
+    inNode = new Text({ name: 'in' });
+    outNode = new Text({ name: 'out' });
     connector = new Connector({ inNode, outNode });
   });
 

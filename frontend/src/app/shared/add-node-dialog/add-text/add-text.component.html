@@ -1,21 +1,21 @@
 <hlm-field [formGroup]="form">
-  <label hlmFieldLabel for="text">text</label>
+  <label hlmFieldLabel for="name">Text</label>
   <input
     hlmInput
-    id="text"
+    id="name"
     placeholder="..."
     autoComplete="off"
-    formControlName="text"
+    formControlName="name"
   />
-  @if (form.controls.text.touched && form.controls.text.invalid) {
+  @if (form.controls.name.touched && form.controls.name.invalid) {
     <hlm-field-error>
       @if (
-        form.controls.text.errors?.["required"] ||
-        form.controls.text.errors?.["minlength"]
+        form.controls.name.errors?.["required"] ||
+        form.controls.name.errors?.["minlength"]
       ) {
         Text must be at least 1 character.
       }
-      @if (form.controls.text.errors?.["maxlength"]) {
+      @if (form.controls.name.errors?.["maxlength"]) {
         Text cannot exceed 32 characters.
       }
     </hlm-field-error>

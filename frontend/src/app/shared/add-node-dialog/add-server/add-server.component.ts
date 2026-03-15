@@ -11,6 +11,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
@@ -42,6 +43,11 @@ export const SERVER_ICONS = [
 })
 export class AddServer implements OnInit, OnDestroy {
   readonly #rootForm = inject(ControlContainer);
+  readonly #initial = injectBrnDialogContext<{
+    name?: string;
+    icon?: string;
+    [k: string]: unknown;
+  }>({ optional: true });
 
   readonly icons = SERVER_ICONS;
 
@@ -52,17 +58,21 @@ export class AddServer implements OnInit, OnDestroy {
   ngOnInit() {
     this.form.addControl(
       'name',
-      new FormControl('', {
+      new FormControl(this.#initial?.name ?? '', {
         nonNullable: true,
         validators: [Validators.required, Validators.maxLength(32)],
       }),
     );
     this.form.addControl(
       'icon',
-      new FormControl(SERVER_ICONS[0].key, {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
+      new FormControl(
+        (this.#initial?.icon ??
+          SERVER_ICONS[0].key) as (typeof SERVER_ICONS)[number]['key'],
+        {
+          nonNullable: true,
+          validators: [Validators.required],
+        },
+      ),
     );
   }
 

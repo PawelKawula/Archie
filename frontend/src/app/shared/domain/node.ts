@@ -22,8 +22,8 @@ export type NodeOptions = {
 export abstract class Node {
   readonly id: string;
   type!: NodeTypes;
-  readonly name: string;
-  readonly icon: string;
+  name: string;
+  icon: string;
   x: number;
   y: number;
 

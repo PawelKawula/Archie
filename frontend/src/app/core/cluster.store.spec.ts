@@ -20,7 +20,7 @@ describe('ClusterStore', () => {
   it('should add a node and emit event', () => {
     const observerSpy = subscribeSpyTo(store.events$);
 
-    const node = new Text({ text: 'text' });
+    const node = new Text({ name: 'text' });
     store.addNode(node);
 
     expect(store.nodes()).toContain(node);
@@ -28,7 +28,7 @@ describe('ClusterStore', () => {
   });
 
   it('should remove a node and emit event', () => {
-    const node = new Text({ text: 'text' });
+    const node = new Text({ name: 'text' });
     store.addNode(node);
 
     const observerSpy = subscribeSpyTo(store.events$);

@@ -1,20 +1,12 @@
 import type { FormType, T } from 'ngx-mf';
 import { Node, type NodeOptions } from './node';
 
-export interface TextOptions {
-  text: string;
-}
-
-export type _TextOptions = NodeOptions & TextOptions;
-
-type TextOptionsFormType = FormType<{ type: 'text' } & TextOptions>;
+type TextOptionsFormType = FormType<{ type: 'text'; name: string }>;
 export type TextOptionsFormGroupType = TextOptionsFormType[T];
 
 export class Text extends Node {
-  text: string;
-  constructor(options: _TextOptions) {
+  constructor(options: NodeOptions) {
     super(options);
-    this.text = options.text;
     this.type = 'text';
   }
 }

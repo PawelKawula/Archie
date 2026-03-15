@@ -12,15 +12,17 @@
       >
         Remove node
       </button>
-      @if (
-        node().type === "server" &&
-        orchestrator.connectionPickState().step === "idle"
-      ) {
-        <button
-          hlmDropdownMenuItem
-          (triggered)="orchestrator.startConnectionFromNode(node())"
-        >
-          Connect
+      @if (orchestrator.connectionPickState().step === "idle") {
+        @if (node().type === "server") {
+          <button
+            hlmDropdownMenuItem
+            (triggered)="orchestrator.startConnectionFromNode(node())"
+          >
+            Connect
+          </button>
+        }
+        <button hlmDropdownMenuItem (triggered)="orchestrator.editNode(node())">
+          Edit
         </button>
       }
     </hlm-dropdown-menu-group>

@@ -8,7 +8,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FederatedPointerEvent } from 'pixi.js';
 import { AddConnectionDialog } from '../shared/add-connection-dialog/add-connection-dialog.component';
-import { AddNodeDialog } from '../shared/add-node-dialog/add-node-dialog.component';
+import {
+  AddNodeDialog,
+  type EditNodeContext,
+} from '../shared/add-node-dialog/add-node-dialog.component';
 import { ContextMenu } from '../shared/context-menu.service';
 import { DialogService } from '../shared/dialog.service';
 import {
@@ -18,6 +21,7 @@ import {
 import { Connector } from '../shared/domain/connector';
 import type { Node, NodeTypes } from '../shared/domain/node';
 import { Server } from '../shared/domain/server';
+import { Text } from '../shared/domain/text';
 import { NodeFactory } from '../shared/node-factory.service';
 import { ClusterStore } from './cluster.store';
 import {
@@ -102,6 +106,27 @@ export class Orchestrator {
         if (!v) return;
         const node = this.nodeFactory.createNode({ ...v, x, y });
         this.addNode(node);
+      });
+  }
+
+  editNode(node: Node) {
+    let context: EditNodeContext;
+    if (node instanceof Server) {
+      context = { type: 'server', name: node.name, icon: node.icon };
+    } else if (node instanceof Text) {
+      context = { type: 'text', name: node.name };
+    } else {
+      return;
+    }
+    this.dialogService
+      .open<EditNodeContext>({
+        component: AddNodeDialog,
+        context,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((options) => {
+        if (!options) return;
+        this.store.updateNode(node.id, options);
       });
   }
 

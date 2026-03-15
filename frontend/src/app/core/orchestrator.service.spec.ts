@@ -28,7 +28,7 @@ describe('Orchestrator', () => {
   });
 
   it('should add a node to the store', () => {
-    const node = new Text({ name: 'Test Node', text: 'text' });
+    const node = new Text({ name: 'Test Node' });
     service.addNode(node);
 
     expect(service.store.nodes().length).toBe(1);
@@ -36,7 +36,7 @@ describe('Orchestrator', () => {
   });
 
   it('should remove a node from the store', () => {
-    const node = new Text({ name: 'Test Node', text: 'text' });
+    const node = new Text({ name: 'Test Node' });
     service.addNode(node);
     service.removeNode(node.id);
 
@@ -59,7 +59,7 @@ describe('Orchestrator', () => {
     });
 
     it('startConnectionFromNode ignores non-Server nodes', () => {
-      service.startConnectionFromNode(new Text({ text: 'hi' }));
+      service.startConnectionFromNode(new Text({ name: 'hi' }));
       expect(service.connectionPickState()).toEqual(IDLE);
     });
 
@@ -74,7 +74,7 @@ describe('Orchestrator', () => {
   describe('pickNodeForConnection', () => {
     it('ignores non-Server nodes and leaves state unchanged', () => {
       service.connectionPickState.set({ step: 'pickSource' });
-      service.pickNodeForConnection(new Text({ text: 'hi' }));
+      service.pickNodeForConnection(new Text({ name: 'hi' }));
       expect(service.connectionPickState().step).toBe('pickSource');
     });
 

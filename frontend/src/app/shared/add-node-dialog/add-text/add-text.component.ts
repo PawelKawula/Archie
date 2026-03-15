@@ -11,6 +11,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
@@ -34,6 +35,10 @@ import type { TextOptionsFormGroupType } from '../../domain/text';
 })
 export class AddText implements OnInit, OnDestroy {
   readonly #rootForm = inject(ControlContainer);
+  readonly #initial = injectBrnDialogContext<{
+    name?: string;
+    [k: string]: unknown;
+  }>({ optional: true });
 
   get form() {
     return this.#rootForm.control as TextOptionsFormGroupType;
@@ -41,8 +46,8 @@ export class AddText implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.form.addControl(
-      'text',
-      new FormControl('', {
+      'name',
+      new FormControl(this.#initial?.name ?? '', {
         nonNullable: true,
         validators: [
           Validators.required,
@@ -55,6 +60,6 @@ export class AddText implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // @ts-expect-error
-    this.form.removeControl('text');
+    this.form.removeControl('name');
   }
 }

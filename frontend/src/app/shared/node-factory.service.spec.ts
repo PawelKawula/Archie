@@ -26,8 +26,8 @@ describe('NodeFactory', () => {
   });
 
   it('should create a Connector instance when type is connector', () => {
-    const nodeA = new Text({ text: 'A' });
-    const nodeB = new Text({ text: 'B' });
+    const nodeA = new Text({ name: 'A' });
+    const nodeB = new Text({ name: 'B' });
     const options = {
       type: 'connector',
       name: 'Test Connector',
@@ -42,7 +42,6 @@ describe('NodeFactory', () => {
     const options = {
       type: 'text',
       name: 'Test Text',
-      text: 'Hello World',
     } as const;
     const node = service.createNode(options);
     expect(node).toBeInstanceOf(Text);
