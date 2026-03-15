@@ -142,10 +142,10 @@ export class Canvas {
     this._connectorsLayer = new Container();
     this.viewport.addChild(this._connectorsLayer);
 
-    // Initial sync of existing nodes
-    for (const node of this.store.nodes()) {
-      this._addNodeToCanvas(node);
-    }
+    // Initial sync of existing nodes (must complete before connections are drawn)
+    await Promise.all(
+      this.store.nodes().map((node) => this._addNodeToCanvas(node)),
+    );
 
     for (const connector of this.store.connections()) {
       this._addConnectionToCanvas(connector);

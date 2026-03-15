@@ -1,3 +1,4 @@
+import { InjectionToken, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
@@ -25,9 +26,14 @@ const initialState: ClusterState = {
   connections: [],
 };
 
+export const INITIAL_CLUSTER_STATE = new InjectionToken<Partial<ClusterState>>(
+  'INITIAL_CLUSTER_STATE',
+  { providedIn: 'root', factory: () => ({}) },
+);
+
 export const ClusterStore = signalStore(
   { providedIn: 'root' },
-  withState(initialState),
+  withState(() => ({ ...initialState, ...inject(INITIAL_CLUSTER_STATE) })),
   withProps(() => {
     const _events$ = new Subject<ClusterEvent>();
     return {
