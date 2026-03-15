@@ -1,6 +1,6 @@
 import { Directive } from '@angular/core';
 import {
-  BrnTooltipTrigger,
+  BrnTooltip,
   provideBrnTooltipDefaultOptions,
 } from '@spartan-ng/brain/tooltip';
 
@@ -17,23 +17,18 @@ export const DEFAULT_TOOLTIP_CONTENT_CLASSES =
     provideBrnTooltipDefaultOptions({
       showDelay: 150,
       hideDelay: 300,
-      exitAnimationDuration: 150,
       tooltipContentClasses: DEFAULT_TOOLTIP_CONTENT_CLASSES,
     }),
   ],
   hostDirectives: [
     {
-      directive: BrnTooltipTrigger,
+      directive: BrnTooltip,
       inputs: [
-        'brnTooltipDisabled: hlmTooltipDisabled',
-        'brnTooltipTrigger: hlmTooltipTrigger',
-        'aria-describedby',
+        'tooltipDisabled: hlmTooltipDisabled',
+        'brnTooltip: hlmTooltipTrigger',
         'position',
-        'positionAtOrigin',
         'hideDelay',
         'showDelay',
-        'exitAnimationDuration',
-        'touchGestures',
       ],
     },
   ],

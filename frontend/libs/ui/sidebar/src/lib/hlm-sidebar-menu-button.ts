@@ -7,7 +7,7 @@ import {
   input,
 } from '@angular/core';
 import {
-  BrnTooltipTrigger,
+  BrnTooltip,
   provideBrnTooltipDefaultOptions,
 } from '@spartan-ng/brain/tooltip';
 import { DEFAULT_TOOLTIP_CONTENT_CLASSES } from '@spartan-ng/helm/tooltip';
@@ -43,15 +43,14 @@ const sidebarMenuButtonVariants = cva(
     provideBrnTooltipDefaultOptions({
       showDelay: 150,
       hideDelay: 0,
-      exitAnimationDuration: 150,
       tooltipContentClasses: DEFAULT_TOOLTIP_CONTENT_CLASSES,
       position: 'left',
     }),
   ],
   hostDirectives: [
     {
-      directive: BrnTooltipTrigger,
-      inputs: ['brnTooltipTrigger: tooltip', 'aria-describedby'],
+      directive: BrnTooltip,
+      inputs: ['brnTooltip: tooltip'],
     },
   ],
   host: {
