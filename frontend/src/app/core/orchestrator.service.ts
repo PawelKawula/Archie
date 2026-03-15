@@ -1,4 +1,5 @@
 import {
+  computed,
   DestroyRef,
   Injectable,
   inject,
@@ -17,11 +18,12 @@ import type { Node, NodeTypes } from '../shared/domain/node';
 import { Server } from '../shared/domain/server';
 import { NodeFactory } from '../shared/node-factory.service';
 import { ClusterStore } from './cluster.store';
-
-type ConnectionPickState =
-  | null
-  | { step: 'pickSource' }
-  | { step: 'pickTarget'; source: Server };
+import {
+  type ConnectionPickState,
+  IDLE,
+  menuLabel,
+  transition,
+} from './connection-pick-state';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +37,18 @@ export class Orchestrator {
 
   readonly nodeMenuTemplate = signal<TemplateRef<unknown> | null>(null);
   readonly stageMenuTemplate = signal<TemplateRef<unknown> | null>(null);
-  readonly connectionPickState = signal<ConnectionPickState>(null);
+  readonly connectionPickState = signal<ConnectionPickState>(IDLE);
+
+  readonly connectionMenuAction = computed(() => {
+    const state = this.connectionPickState();
+    return {
+      label: menuLabel(state),
+      handler:
+        state.step === 'idle'
+          ? () => this.connectionPickState.set({ step: 'pickSource' })
+          : () => this.connectionPickState.set(IDLE),
+    };
+  });
 
   addNode(node: Node) {
     this.store.addNode(node);
@@ -68,28 +81,14 @@ export class Orchestrator {
       });
   }
 
-  startConnectionCreation() {
-    this.connectionPickState.set({ step: 'pickSource' });
-  }
-
-  cancelConnectionCreation() {
-    this.connectionPickState.set(null);
-  }
-
   pickNodeForConnection(node: Node) {
     if (!(node instanceof Server)) return;
-
-    const state = this.connectionPickState();
-    if (!state) return;
-
-    if (state.step === 'pickSource') {
-      this.connectionPickState.set({ step: 'pickTarget', source: node });
+    const intent = transition(this.connectionPickState(), node);
+    if (intent.kind === 'transition') {
+      this.connectionPickState.set(intent.next);
       return;
     }
-
-    const source = state.source;
-    this.connectionPickState.set(null);
-
+    this.connectionPickState.set(IDLE);
     this.dialogService
       .open<ConnectionOptions>({
         component: AddConnectionDialog,
@@ -98,12 +97,13 @@ export class Orchestrator {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((options) => {
         if (!options) return;
-        const connector = new Connector({
-          outNode: source,
-          inNode: node,
-          connectionOptions: options,
-        });
-        this.store.addConnection(connector);
+        this.store.addConnection(
+          new Connector({
+            outNode: intent.source,
+            inNode: intent.target,
+            connectionOptions: options,
+          }),
+        );
       });
   }
 }

@@ -202,7 +202,7 @@ export class Canvas {
     container.eventMode = 'static';
     container.cursor = 'pointer';
     container.on('pointerover', () => {
-      if (this.orchestrator.connectionPickState() !== null) {
+      if (this.orchestrator.connectionPickState().step !== 'idle') {
         highlight.visible = true;
       }
     });
@@ -243,7 +243,7 @@ export class Canvas {
       if (event.button !== 0) return;
       event.stopPropagation();
 
-      if (this.orchestrator.connectionPickState() !== null) {
+      if (this.orchestrator.connectionPickState().step !== 'idle') {
         this.orchestrator.pickNodeForConnection(node);
         return;
       }
