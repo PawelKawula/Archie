@@ -18,6 +18,7 @@ import {
 } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { ContextMenu } from '../../shared/context-menu.service';
+import type { Connector } from '../../shared/domain/connector';
 import type { Node } from '../../shared/domain/node';
 import { Server } from '../../shared/domain/server';
 import { Text } from '../../shared/domain/text';
@@ -40,6 +41,12 @@ export class Canvas {
 
   // Registry to map domain nodes to their visual representations
   private readonly _renderNodes = new Map<string, Container>();
+  private readonly _renderConnections = new Map<string, Graphics>();
+  private _nodesLayer: Container | null = null;
+  private _connectorsLayer: Container | null = null;
+  private readonly _connectors: Connector[] = [];
+  private readonly _CONNECTION_OFFSET_SPACING = 30;
+  private readonly _NODE_HALF_SIZE = 24;
 
   constructor() {
     this._setupSync();
@@ -61,10 +68,22 @@ export class Canvas {
     return this._viewport;
   }
 
+  get nodesLayer() {
+    if (!this._nodesLayer)
+      throw new ConfigurationError(
+        'Nodes layer is not yet initialized, maybe run inject(Canvas).init()?',
+      );
+    return this._nodesLayer;
+  }
+
   async init(domContainer: ElementRef) {
     this._app = new Application();
 
-    await this._app.init({ background: '#1099bb', resizeTo: window });
+    await this._app.init({
+      background: '#1099bb',
+      resizeTo: window,
+      antialias: true,
+    });
 
     await Assets.load('fonts/Hack-Regular/Hack-Regular.fnt');
     // @ts-expect-error
@@ -100,9 +119,19 @@ export class Canvas {
       this.showContextMenu(ev as FederatedPointerEvent),
     );
 
+    this._nodesLayer = new Container();
+    this.viewport.addChild(this.nodesLayer);
+
+    this._connectorsLayer = new Container();
+    this.viewport.addChild(this._connectorsLayer);
+
     // Initial sync of existing nodes
     for (const node of this.store.nodes()) {
       this._addNodeToCanvas(node);
+    }
+
+    for (const connector of this.store.connections()) {
+      this._addConnectionToCanvas(connector);
     }
 
     this._isInitialized.set(true);
@@ -118,26 +147,129 @@ export class Canvas {
           this._addNodeToCanvas(event.node);
         } else if (event.type === 'nodeRemoved') {
           this._removeNodeFromCanvas(event.nodeId);
+        } else if (event.type === 'connectionAdded') {
+          this._addConnectionToCanvas(event.connection);
         }
       });
   }
 
   private async _addNodeToCanvas(node: Node) {
-    if (!this._viewport) return;
     if (this._renderNodes.has(node.id)) return;
 
     const container = await this._createNodeGraphics(node);
     container.position.set(node.x, node.y);
-    this._viewport.addChild(container);
+    this.nodesLayer.addChild(container);
     this._renderNodes.set(node.id, container);
   }
 
   private _removeNodeFromCanvas(nodeId: string) {
+    const toRemove = this._connectors.filter(
+      (c) => c.outNode.id === nodeId || c.inNode.id === nodeId,
+    );
+    for (const connector of toRemove) {
+      const gfx = this._renderConnections.get(connector.id);
+      if (gfx) {
+        gfx.destroy();
+        this._renderConnections.delete(connector.id);
+      }
+      this._connectors.splice(this._connectors.indexOf(connector), 1);
+    }
+    for (const connector of this._connectors) {
+      if (
+        this._renderNodes.has(connector.outNode.id) &&
+        this._renderNodes.has(connector.inNode.id)
+      ) {
+        this._redrawConnection(connector);
+      }
+    }
+
     const container = this._renderNodes.get(nodeId);
-    if (container && this._viewport) {
-      this._viewport.removeChild(container);
+    if (container) {
+      this.nodesLayer.removeChild(container);
       container.destroy({ children: true });
       this._renderNodes.delete(nodeId);
+    }
+  }
+
+  private _addConnectionToCanvas(connector: Connector): void {
+    if (!this._connectorsLayer) return;
+    if (this._renderConnections.has(connector.id)) return;
+    const gfx = new Graphics();
+    this._connectorsLayer.addChild(gfx);
+    this._renderConnections.set(connector.id, gfx);
+    this._connectors.push(connector);
+    this._redrawConnection(connector);
+  }
+
+  private _redrawConnection(connector: Connector): void {
+    const gfx = this._renderConnections.get(connector.id);
+    if (!gfx) return;
+    const outC = this._renderNodes.get(connector.outNode.id);
+    const inC = this._renderNodes.get(connector.inNode.id);
+    if (!outC || !inC) return;
+
+    gfx.clear();
+
+    const x1 = outC.x + this._NODE_HALF_SIZE;
+    const y1 = outC.y + this._NODE_HALF_SIZE;
+    const x2 = inC.x + this._NODE_HALF_SIZE;
+    const y2 = inC.y + this._NODE_HALF_SIZE;
+
+    const keyA =
+      connector.outNode.id < connector.inNode.id
+        ? connector.outNode.id
+        : connector.inNode.id;
+    const keyB =
+      connector.outNode.id < connector.inNode.id
+        ? connector.inNode.id
+        : connector.outNode.id;
+    const group = this._connectors.filter((c) => {
+      const a = c.outNode.id < c.inNode.id ? c.outNode.id : c.inNode.id;
+      const b = c.outNode.id < c.inNode.id ? c.inNode.id : c.outNode.id;
+      return a === keyA && b === keyB;
+    });
+    const count = group.length;
+    const index = group.indexOf(connector);
+
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    const px = -dy / len;
+    const py = dx / len;
+    const offsetMag =
+      this._CONNECTION_OFFSET_SPACING * (index - (count - 1) / 2);
+    const cpx = mx + px * offsetMag;
+    const cpy = my + py * offsetMag;
+
+    gfx
+      .moveTo(x1, y1)
+      .quadraticCurveTo(cpx, cpy, x2, y2)
+      .stroke({ color: 0xffffff, width: 2 });
+
+    const tx = x2 - cpx;
+    const ty = y2 - cpy;
+    const tlen = Math.sqrt(tx * tx + ty * ty) || 1;
+    const tnx = tx / tlen;
+    const tny = ty / tlen;
+    const ARROW_LEN = 12;
+    const ARROW_HALF = 5;
+    const bx = x2 - tnx * ARROW_LEN;
+    const by = y2 - tny * ARROW_LEN;
+    gfx
+      .moveTo(x2, y2)
+      .lineTo(bx - tny * ARROW_HALF, by + tnx * ARROW_HALF)
+      .lineTo(bx + tny * ARROW_HALF, by - tnx * ARROW_HALF)
+      .closePath()
+      .fill({ color: 0xffffff });
+  }
+
+  private _redrawConnectionsForNode(nodeId: string): void {
+    for (const connector of this._connectors) {
+      if (connector.outNode.id === nodeId || connector.inNode.id === nodeId) {
+        this._redrawConnection(connector);
+      }
     }
   }
 
@@ -228,6 +360,7 @@ export class Canvas {
         worldPos.x - dragOffsetX,
         worldPos.y - dragOffsetY,
       );
+      this._redrawConnectionsForNode(node.id);
     };
 
     const stopDrag = () => {
@@ -237,6 +370,7 @@ export class Canvas {
       container.cursor = 'pointer';
       node.x = container.x;
       node.y = container.y;
+      this._redrawConnectionsForNode(node.id);
     };
 
     container.on('pointerdown', (event: FederatedPointerEvent) => {

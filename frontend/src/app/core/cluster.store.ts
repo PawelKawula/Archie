@@ -45,6 +45,9 @@ export const ClusterStore = signalStore(
     removeNode(nodeId: string) {
       patchState(store, (state) => ({
         nodes: state.nodes.filter((n) => n.id !== nodeId),
+        connections: state.connections.filter(
+          (c) => c.inNode.id !== nodeId && c.outNode.id !== nodeId,
+        ),
       }));
       store._events$.next({ type: 'nodeRemoved', nodeId });
     },
