@@ -1,5 +1,6 @@
 import type { FormType, G, T } from 'ngx-mf';
 import { v4 as uuidv4 } from 'uuid';
+import type { NodeSnapshot } from './snapshot';
 
 export const NODE_TYPES = ['text', 'server', 'connector'] as const;
 
@@ -32,5 +33,16 @@ export abstract class Node {
     this.icon = options.icon ?? 'default';
     this.x = options.x ?? 0;
     this.y = options.y ?? 0;
+  }
+
+  toSnapshot(): NodeSnapshot {
+    return {
+      id: this.id,
+      type: this.type,
+      name: this.name,
+      icon: this.icon,
+      x: this.x,
+      y: this.y,
+    };
   }
 }

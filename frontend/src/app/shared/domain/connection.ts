@@ -1,5 +1,6 @@
 import { AsyncQueue } from '../utils/async-queue';
 import type { Packet } from './packet';
+import type { ConnectionSnapshot } from './snapshot';
 
 export type ConnectionOptions = {
   outQueueSize?: number;
@@ -48,5 +49,19 @@ export class Connection {
 
   get arrivedSize() {
     return this.arrivedQueue.size;
+  }
+
+  toSnapshot(): ConnectionSnapshot {
+    const out = this.outQueue.toSnapshot();
+    const transit = this.transitQueue.toSnapshot();
+    const arrived = this.arrivedQueue.toSnapshot();
+    return {
+      outQueue: out.items.map((p) => p.toSnapshot()),
+      transitQueue: transit.items.map((p) => p.toSnapshot()),
+      arrivedQueue: arrived.items.map((p) => p.toSnapshot()),
+      outQueueSize: out.maxsize,
+      transitQueueSize: transit.maxsize,
+      arrivedQueueSize: arrived.maxsize,
+    };
   }
 }

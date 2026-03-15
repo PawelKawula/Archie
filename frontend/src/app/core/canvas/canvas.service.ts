@@ -69,6 +69,11 @@ export class Canvas {
     await Assets.load('fonts/Hack-Regular/Hack-Regular.fnt');
     // @ts-expect-error
     globalThis.__PIXI_APP__ = this._app;
+    // @ts-expect-error
+    globalThis.__archie__ = {
+      snapshot: () => this.store.toSnapshot(),
+      store: this.store,
+    };
 
     domContainer.nativeElement.appendChild(this._app.canvas);
 
