@@ -1,6 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
   <hlm-dialog-header class="mb-4">
-    <h3 hlmDialogTitle>Create connection</h3>
+    <h3 hlmDialogTitle>
+      {{ isEditing ? "Edit connection" : "Create connection" }}
+    </h3>
     <p hlmDialogDescription>Configure queue sizes for the connection</p>
   </hlm-dialog-header>
 
@@ -60,6 +62,8 @@
     <button hlmBtn variant="outline" type="button" (click)="cancel()">
       Cancel
     </button>
-    <button hlmBtn type="submit" [disabled]="isInvalid()">Create</button>
+    <button hlmBtn type="submit" [disabled]="isInvalid()">
+      {{ isEditing ? "Save" : "Create" }}
+    </button>
   </hlm-dialog-footer>
 </form>

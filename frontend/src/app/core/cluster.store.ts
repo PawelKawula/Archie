@@ -14,7 +14,8 @@ import type { ClusterSnapshot } from '../shared/domain/snapshot';
 export type ClusterEvent =
   | { type: 'nodeAdded'; node: Node }
   | { type: 'nodeRemoved'; nodeId: string }
-  | { type: 'connectionAdded'; connection: Connector };
+  | { type: 'connectionAdded'; connection: Connector }
+  | { type: 'connectionRemoved'; connectionId: string };
 
 export type ClusterState = {
   nodes: Node[];
@@ -62,6 +63,12 @@ export const ClusterStore = signalStore(
         connections: [...state.connections, connection],
       }));
       store._events$.next({ type: 'connectionAdded', connection });
+    },
+    removeConnection(connectionId: string) {
+      patchState(store, (state) => ({
+        connections: state.connections.filter((c) => c.id !== connectionId),
+      }));
+      store._events$.next({ type: 'connectionRemoved', connectionId });
     },
     toSnapshot(tick = 0): ClusterSnapshot {
       return {

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BrnDialogRef } from '@spartan-ng/brain/dialog';
+import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
@@ -30,20 +30,25 @@ type FormValue = ValueOfForm<AddConnectionDialog['form']>;
 export class AddConnectionDialog {
   readonly #fb = inject(FormBuilder);
   readonly #dialogRef = inject<BrnDialogRef<ConnectionOptions>>(BrnDialogRef);
+  readonly #initial = injectBrnDialogContext<ConnectionOptions>({
+    optional: true,
+  });
+
+  readonly isEditing = !!this.#initial;
 
   form = this.#fb.nonNullable.group({
-    outQueueSize: this.#fb.nonNullable.control(100, [
-      Validators.required,
-      Validators.min(1),
-    ]),
-    transitQueueSize: this.#fb.nonNullable.control(100, [
-      Validators.required,
-      Validators.min(1),
-    ]),
-    arrivedQueueSize: this.#fb.nonNullable.control(100, [
-      Validators.required,
-      Validators.min(1),
-    ]),
+    outQueueSize: this.#fb.nonNullable.control(
+      this.#initial?.outQueueSize ?? 100,
+      [Validators.required, Validators.min(1)],
+    ),
+    transitQueueSize: this.#fb.nonNullable.control(
+      this.#initial?.transitQueueSize ?? 100,
+      [Validators.required, Validators.min(1)],
+    ),
+    arrivedQueueSize: this.#fb.nonNullable.control(
+      this.#initial?.arrivedQueueSize ?? 100,
+      [Validators.required, Validators.min(1)],
+    ),
   });
 
   isInvalid = toSignal(

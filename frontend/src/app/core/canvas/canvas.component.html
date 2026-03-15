@@ -27,6 +27,25 @@
   </hlm-dropdown-menu>
 </ng-template>
 
+<ng-template #connectionMenuTemplate let-connector>
+  <hlm-dropdown-menu>
+    <hlm-dropdown-menu-group>
+      <button
+        hlmDropdownMenuItem
+        (triggered)="orchestrator.editConnection(connector())"
+      >
+        Edit connection
+      </button>
+      <button
+        hlmDropdownMenuItem
+        (triggered)="orchestrator.removeConnection(connector().id)"
+      >
+        Remove connection
+      </button>
+    </hlm-dropdown-menu-group>
+  </hlm-dropdown-menu>
+</ng-template>
+
 <ng-template #stageMenuTemplate let-pos>
   <hlm-dropdown-menu>
     <hlm-dropdown-menu-group>

@@ -166,6 +166,8 @@ export class Canvas {
           this._removeNodeFromCanvas(event.nodeId);
         } else if (event.type === 'connectionAdded') {
           this._addConnectionToCanvas(event.connection);
+        } else if (event.type === 'connectionRemoved') {
+          this._removeConnectionFromCanvas(event.connectionId);
         }
       });
   }
@@ -212,10 +214,38 @@ export class Canvas {
     if (!this._connectorsLayer) return;
     if (this._renderConnections.has(connector.id)) return;
     const gfx = new Graphics();
+    gfx.eventMode = 'static';
+    gfx.cursor = 'pointer';
+    gfx.on('rightclick', (event) => {
+      event.stopPropagation();
+      this.orchestrator.handleConnectionRightClick(
+        connector,
+        event as FederatedPointerEvent,
+      );
+    });
     this._connectorsLayer.addChild(gfx);
     this._renderConnections.set(connector.id, gfx);
     this._connectors.push(connector);
     this._redrawConnection(connector);
+  }
+
+  private _removeConnectionFromCanvas(connectionId: string): void {
+    const connector = this._connectors.find((c) => c.id === connectionId);
+    if (!connector) return;
+    const gfx = this._renderConnections.get(connectionId);
+    if (gfx) {
+      gfx.destroy();
+      this._renderConnections.delete(connectionId);
+    }
+    this._connectors.splice(this._connectors.indexOf(connector), 1);
+    for (const c of this._connectors) {
+      if (
+        this._renderNodes.has(c.outNode.id) &&
+        this._renderNodes.has(c.inNode.id)
+      ) {
+        this._redrawConnection(c);
+      }
+    }
   }
 
   private _redrawConnection(connector: Connector): void {

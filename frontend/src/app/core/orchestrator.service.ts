@@ -11,7 +11,10 @@ import { AddConnectionDialog } from '../shared/add-connection-dialog/add-connect
 import { AddNodeDialog } from '../shared/add-node-dialog/add-node-dialog.component';
 import { ContextMenu } from '../shared/context-menu.service';
 import { DialogService } from '../shared/dialog.service';
-import type { ConnectionOptions } from '../shared/domain/connection';
+import {
+  Connection,
+  type ConnectionOptions,
+} from '../shared/domain/connection';
 import { Connector } from '../shared/domain/connector';
 import type { Node, NodeTypes } from '../shared/domain/node';
 import { Server } from '../shared/domain/server';
@@ -35,6 +38,7 @@ export class Orchestrator {
 
   readonly nodeMenuTemplate = signal<TemplateRef<unknown> | null>(null);
   readonly stageMenuTemplate = signal<TemplateRef<unknown> | null>(null);
+  readonly connectionMenuTemplate = signal<TemplateRef<unknown> | null>(null);
   readonly connectionPickState = signal<ConnectionPickState>(IDLE);
 
   addNode(node: Node) {
@@ -45,12 +49,45 @@ export class Orchestrator {
     this.store.removeNode(nodeId);
   }
 
+  removeConnection(connectionId: string) {
+    this.store.removeConnection(connectionId);
+  }
+
   handleNodeRightClick(node: Node, event: FederatedPointerEvent) {
     this.contextMenu.show({
       event,
       template: this.nodeMenuTemplate(),
       data: node,
     });
+  }
+
+  handleConnectionRightClick(
+    connector: Connector,
+    event: FederatedPointerEvent,
+  ) {
+    this.contextMenu.show({
+      event,
+      template: this.connectionMenuTemplate(),
+      data: connector,
+    });
+  }
+
+  editConnection(connector: Connector) {
+    const snapshot = connector.connection.toSnapshot();
+    this.dialogService
+      .open<ConnectionOptions>({
+        component: AddConnectionDialog,
+        context: {
+          outQueueSize: snapshot.outQueueSize,
+          transitQueueSize: snapshot.transitQueueSize,
+          arrivedQueueSize: snapshot.arrivedQueueSize,
+        },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((options) => {
+        if (!options) return;
+        connector.connection = new Connection(options);
+      });
   }
 
   openAddNodeDialog(x: number, y: number) {
