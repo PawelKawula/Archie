@@ -12,6 +12,7 @@ import {
   BitmapText,
   Container,
   type FederatedPointerEvent,
+  Graphics,
   Sprite,
   type Texture,
 } from 'pixi.js';
@@ -184,11 +185,25 @@ export class Canvas {
     label.y = 52;
     label.anchor.set(0.5, 0);
 
+    const highlight = new Graphics()
+      .rect(-4, -4, 56, 56)
+      .stroke({ color: 0xffd700, width: 3 });
+    highlight.visible = false;
+
     const container = new Container();
     container.addChild(sprite);
     container.addChild(label);
+    container.addChild(highlight);
     container.eventMode = 'static';
     container.cursor = 'pointer';
+    container.on('pointerover', () => {
+      if (this.orchestrator.connectionPickState() !== null) {
+        highlight.visible = true;
+      }
+    });
+    container.on('pointerout', () => {
+      highlight.visible = false;
+    });
     container.on('rightclick', (event) => {
       event.stopPropagation();
       this.orchestrator.handleNodeRightClick(node, event);
@@ -222,6 +237,12 @@ export class Canvas {
     container.on('pointerdown', (event: FederatedPointerEvent) => {
       if (event.button !== 0) return;
       event.stopPropagation();
+
+      if (this.orchestrator.connectionPickState() !== null) {
+        this.orchestrator.pickNodeForConnection(node);
+        return;
+      }
+
       const worldPos = event.getLocalPosition(this.viewport);
       dragOffsetX = worldPos.x - container.x;
       dragOffsetY = worldPos.y - container.y;

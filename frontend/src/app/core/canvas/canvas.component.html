@@ -25,6 +25,21 @@
       >
         Add node
       </button>
+      @if (orchestrator.connectionPickState() === null) {
+        <button
+          hlmDropdownMenuItem
+          (triggered)="orchestrator.startConnectionCreation()"
+        >
+          Create connection
+        </button>
+      } @else {
+        <button
+          hlmDropdownMenuItem
+          (triggered)="orchestrator.cancelConnectionCreation()"
+        >
+          Cancel connection
+        </button>
+      }
     </hlm-dropdown-menu-group>
   </hlm-dropdown-menu>
 </ng-template>

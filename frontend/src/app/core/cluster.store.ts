@@ -6,18 +6,22 @@ import {
   withState,
 } from '@ngrx/signals';
 import { Subject } from 'rxjs';
+import type { Connector } from '../shared/domain/connector';
 import type { Node } from '../shared/domain/node';
 
 export type ClusterEvent =
   | { type: 'nodeAdded'; node: Node }
-  | { type: 'nodeRemoved'; nodeId: string };
+  | { type: 'nodeRemoved'; nodeId: string }
+  | { type: 'connectionAdded'; connection: Connector };
 
 export type ClusterState = {
   nodes: Node[];
+  connections: Connector[];
 };
 
 const initialState: ClusterState = {
   nodes: [],
+  connections: [],
 };
 
 export const ClusterStore = signalStore(
@@ -42,6 +46,12 @@ export const ClusterStore = signalStore(
         nodes: state.nodes.filter((n) => n.id !== nodeId),
       }));
       store._events$.next({ type: 'nodeRemoved', nodeId });
+    },
+    addConnection(connection: Connector) {
+      patchState(store, (state) => ({
+        connections: [...state.connections, connection],
+      }));
+      store._events$.next({ type: 'connectionAdded', connection });
     },
   })),
 );
