@@ -1,0 +1,13 @@
+name: Claude hosting
+
+on:
+  push:
+    branches:
+      - "claude/**"
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/.base-hosting.yml
+    with:
+      environment: "claude"
+    secrets: inherit
