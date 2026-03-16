@@ -82,7 +82,7 @@ export class Canvas {
     this._app = new Application();
 
     await this.app.init({
-      background: '#1099bb',
+      background: '#ff69b4',
       resizeTo: window,
       antialias: true,
     });
