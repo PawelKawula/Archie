@@ -1,0 +1,171 @@
+name: Hosting
+
+on:
+  push:
+    branches: "*"
+  workflow_dispatch:
+
+env:
+  python-version: 3.12.11
+  node-version: 25.8.1
+  USER: host990087
+  BACKEND_PROJECT_FOLDER: domains/api.host990087.xce.pl/backend
+  WEBSITE_HOST: host990087.xce.pl
+  FRONTEND_PROJECT_FOLDER: domains/host990087.xce.pl/public_html
+  VENV_ACTIVATE_PATH: virtualenv/domains/api.host990087.xce.pl/3.12/bin/activate
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.python-version }}
+          enable-cache: true
+          working-directory: backend
+
+      - name: Install the backend project
+        run: uv sync --locked
+        working-directory: backend
+
+      - name: Export requirements.txt
+        run: uv export --format requirements.txt > requirements-new.txt
+        working-directory: backend
+
+      - name: Upload requirements.txt artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: requirements.txt
+          path: backend/requirements-new.txt
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Use Node.js ${{ env.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node-version }}
+          cache: pnpm
+          cache-dependency-path: frontend
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: frontend
+
+      - name: Run frontend tests
+        run: pnpm ng test
+        working-directory: frontend
+
+      # - name: Run backend tests
+      #   run: uvx pytest tests
+      #   working-directory: backend
+
+      - name: Build angular app
+        run: pnpm ng build
+        working-directory: frontend
+
+      - name: Upload angular artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-artifact
+          path: frontend/dist/frontend/browser
+
+  deploy:
+    # permissions:
+    #   contents: none
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: "hostido"
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download requirements.txt artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: requirements.txt
+          path: backend
+
+      - name: Generate .env
+        run: |
+          echo "ARCHIE_ALLOWED_HOSTS=api.${{ env.WEBSITE_HOST }},www.api.${{ env.WEBSITE_HOST }}" >> .env
+          echo "ARCHIE_STATIC_URL=https://static.api.${{ env.WEBSITE_HOST }}/" >> .env
+          echo "ARCHIE_STATIC_ROOT=/home/${{ env.USER }}/domains/static.api.${{ env.WEBSITE_HOST }}/public_html" >> .env
+          echo "ARCHIE_SECRET_KEY=secret" >> .env
+          echo "ARCHIE_USE_HTTPS=true" >> .env
+        working-directory: backend
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: angular-artifact
+          path: ./angular
+
+      - name: Show file structure
+        run: |
+          tree -a .
+          file backend/requirements-new.txt
+
+      - name: Rsync backend
+        uses: burnett01/rsync-deployments@v8
+        with:
+          switches: -azr --delete
+          path: backend/
+          remote_path: ${{ env.BACKEND_PROJECT_FOLDER }} # ex: /var/www/html/
+          remote_host: ${{ secrets.SSH_HOST }} # ex: example.com
+          remote_port: ${{ secrets.SSH_PORT }} # ex: 22
+          remote_user: ${{ secrets.SSH_USER }} # ex: ubuntu
+          remote_key: ${{ secrets.SSH_KEY }}
+          remote_key_pass: ${{ secrets.SSH_PASSPHRASE }}
+
+      - name: Copy requirements.txt to backend folder
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+          source: backend/requirements-new.txt
+          target: ~/${{ env.BACKEND_PROJECT_FOLDER }}
+          strip_components: 2
+
+      - name: Setup backend
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd ~/${{ env.BACKEND_PROJECT_FOLDER }}
+            tree -a ..
+            file requirements-new.txt
+            source ~/${{ env.VENV_ACTIVATE_PATH }}
+            cp -f passenger_wsgi.py ..
+            pip install -r requirements-new.txt
+            mv -f requirements-new.txt requirements.txt
+            python manage.py collectstatic --noinput
+            python manage.py migrate
+            touch ../tmp/restart.txt
+
+      - name: Rsync frontend
+        uses: burnett01/rsync-deployments@v8
+        with:
+          switches: -azr --delete
+          path: angular/
+          remote_path: ${{ env.FRONTEND_PROJECT_FOLDER }} # ex: /var/www/html/
+          remote_host: ${{ secrets.SSH_HOST }} # ex: example.com
+          remote_port: ${{ secrets.SSH_PORT }} # ex: 22
+          remote_user: ${{ secrets.SSH_USER }} # ex: ubuntu
+          remote_key: ${{ secrets.SSH_KEY }}
+          remote_key_pass: ${{ secrets.SSH_PASSPHRASE }}
