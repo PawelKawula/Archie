@@ -1,0 +1,13 @@
+name: Prod hosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/.base-hosting.yml
+    with:
+      environment: production
+    secrets: inherit
