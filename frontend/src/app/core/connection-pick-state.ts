@@ -1,13 +1,16 @@
+import type { PacketSource } from '../shared/domain/packet-source';
 import type { Server } from '../shared/domain/server';
+
+export type ConnectionSource = Server | PacketSource;
 
 export type ConnectionPickState =
   | { step: 'idle' }
   | { step: 'pickSource' }
-  | { step: 'pickTarget'; source: Server };
+  | { step: 'pickTarget'; source: ConnectionSource };
 
 export type PickIntent =
   | { kind: 'transition'; next: ConnectionPickState }
-  | { kind: 'openDialog'; source: Server; target: Server };
+  | { kind: 'openDialog'; source: ConnectionSource; target: Server };
 
 export const IDLE: ConnectionPickState = { step: 'idle' };
 

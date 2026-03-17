@@ -20,6 +20,7 @@ import {
 } from '../shared/domain/connection';
 import { Connector } from '../shared/domain/connector';
 import type { Node, NodeTypes } from '../shared/domain/node';
+import { PacketSource } from '../shared/domain/packet-source';
 import { Server } from '../shared/domain/server';
 import { Text } from '../shared/domain/text';
 import { NodeFactory } from '../shared/node-factory.service';
@@ -131,7 +132,7 @@ export class Orchestrator {
   }
 
   startConnectionFromNode(node: Node) {
-    if (!(node instanceof Server)) return;
+    if (!(node instanceof Server) && !(node instanceof PacketSource)) return;
     this.connectionPickState.set({ step: 'pickTarget', source: node });
   }
 

@@ -14,7 +14,7 @@
         Remove node
       </button>
       @if (orchestrator.connectionPickState().step === "idle") {
-        @if (node().type === "server") {
+        @if (node().type === "server" || node().type === "source") {
           <button
             hlmDropdownMenuItem
             (triggered)="orchestrator.startConnectionFromNode(node())"
