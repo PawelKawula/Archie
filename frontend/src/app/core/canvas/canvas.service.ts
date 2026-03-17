@@ -124,6 +124,9 @@ export class Canvas {
     this.app.stage.on('rightclick', (ev) =>
       this.showContextMenu(ev as FederatedPointerEvent),
     );
+    this._setupLongPress(this.app.stage, (ev) =>
+      this.showContextMenu(ev as FederatedPointerEvent),
+    );
     this.app.stage.on('pointerdown', (ev) => {
       if (
         ev.button === 0 &&
@@ -240,6 +243,15 @@ export class Canvas {
     gfx.cursor = 'pointer';
     gfx.on('rightclick', (event) => {
       event.stopPropagation();
+      this.orchestrator.handleConnectionRightClick(
+        connector,
+        event as FederatedPointerEvent,
+      );
+    });
+    gfx.on('pointerdown', (event: FederatedPointerEvent) => {
+      if (event.pointerType === 'touch') event.stopPropagation();
+    });
+    this._setupLongPress(gfx, (event) => {
       this.orchestrator.handleConnectionRightClick(
         connector,
         event as FederatedPointerEvent,
@@ -532,6 +544,45 @@ export class Canvas {
     return container;
   }
 
+  private _setupLongPress(
+    target: Container,
+    handler: (event: FederatedPointerEvent) => void,
+  ) {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let startX = 0;
+    let startY = 0;
+
+    const cancel = () => {
+      if (timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+
+    const onMove = (event: FederatedPointerEvent) => {
+      if (timer === null) return;
+      const dx = event.globalX - startX;
+      const dy = event.globalY - startY;
+      if (dx * dx + dy * dy > 100) cancel();
+    };
+
+    target.on('pointerdown', (event: FederatedPointerEvent) => {
+      if (event.pointerType !== 'touch') return;
+      startX = event.globalX;
+      startY = event.globalY;
+      cancel();
+      timer = setTimeout(() => {
+        timer = null;
+        handler(event);
+      }, 500);
+    });
+
+    target.on('pointermove', onMove);
+    target.on('pointerup', cancel);
+    target.on('pointerupoutside', cancel);
+    target.on('pointercancel', cancel);
+  }
+
   private _setupDrag(node: Node, container: Container) {
     let dragOffsetX = 0;
     let dragOffsetY = 0;
@@ -567,10 +618,48 @@ export class Canvas {
       const worldPos = event.getLocalPosition(this.viewport);
       dragOffsetX = worldPos.x - container.x;
       dragOffsetY = worldPos.y - container.y;
-      this.viewport.plugins.pause('drag');
-      this.app.stage.on('pointermove', onMove);
-      this.app.stage.on('pointerup', stopDrag);
-      container.cursor = 'grabbing';
+
+      if (event.pointerType === 'touch') {
+        let longPressTimer: ReturnType<typeof setTimeout> | null = setTimeout(
+          () => {
+            longPressTimer = null;
+            this.app.stage.off('pointermove', onTouchMoveStart);
+            this.app.stage.off('pointerup', cancelTouch);
+            this.orchestrator.handleNodeRightClick(node, event);
+          },
+          500,
+        );
+
+        const onTouchMoveStart = () => {
+          if (longPressTimer !== null) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+          this.app.stage.off('pointermove', onTouchMoveStart);
+          this.app.stage.off('pointerup', cancelTouch);
+          this.viewport.plugins.pause('drag');
+          this.app.stage.on('pointermove', onMove);
+          this.app.stage.on('pointerup', stopDrag);
+          container.cursor = 'grabbing';
+        };
+
+        const cancelTouch = () => {
+          if (longPressTimer !== null) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+          this.app.stage.off('pointermove', onTouchMoveStart);
+          this.app.stage.off('pointerup', cancelTouch);
+        };
+
+        this.app.stage.on('pointermove', onTouchMoveStart);
+        this.app.stage.on('pointerup', cancelTouch);
+      } else {
+        this.viewport.plugins.pause('drag');
+        this.app.stage.on('pointermove', onMove);
+        this.app.stage.on('pointerup', stopDrag);
+        container.cursor = 'grabbing';
+      }
     });
   }
 
