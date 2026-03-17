@@ -121,16 +121,16 @@ jobs:
           remote_key_pass: ${{ secrets.SSH_PASSPHRASE }}
 
       - name: Copy requirements.txt to backend folder
-        uses: appleboy/scp-action@v1
+        uses: burnett01/rsync-deployments@v8
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: ${{ secrets.SSH_PORT }}
-          source: backend/requirements-new.txt
-          target: ~/${{ vars.BACKEND_PROJECT_FOLDER }}
-          strip_components: 2
+          switches: -az
+          path: backend/requirements-new.txt
+          remote_path: ${{ vars.BACKEND_PROJECT_FOLDER }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+          remote_key_pass: ${{ secrets.SSH_PASSPHRASE }}
 
       - name: Setup backend
         uses: appleboy/ssh-action@v1
