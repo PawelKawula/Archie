@@ -1,18 +1,20 @@
 import { Connection, type ConnectionOptions } from './connection';
 import { Node, type NodeOptions } from './node';
+import type { PacketSource } from './packet-source';
+import type { Server } from './server';
 import type { ConnectorSnapshot } from './snapshot';
 
 export type ConnectorOptions = {
-  inNode: Node;
-  outNode: Node;
+  inNode: Server;
+  outNode: Server | PacketSource;
   connectionOptions?: ConnectionOptions;
 };
 
 type _ConnectorOptions = NodeOptions & ConnectorOptions;
 
 export class Connector extends Node {
-  inNode: Node;
-  outNode: Node;
+  inNode: Server;
+  outNode: Server | PacketSource;
   connection: Connection;
 
   constructor(options: _ConnectorOptions) {
