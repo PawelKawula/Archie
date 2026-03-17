@@ -10,7 +10,7 @@ on:
 
 env:
   python-version: 3.12.11
-  node-version: 25.8.1
+  node-version: 24.x
 
 jobs:
   build:
