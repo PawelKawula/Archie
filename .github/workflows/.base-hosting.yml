@@ -4,6 +4,9 @@ on:
       environment:
         type: string
         required: true
+      test:
+        type: boolean
+        required: false
 
 env:
   python-version: 3.12.11
@@ -54,6 +57,7 @@ jobs:
         working-directory: frontend
 
       - name: Run frontend tests
+        if: inputs.test == true || vars.test == true
         run: pnpm ng test
         working-directory: frontend
 
