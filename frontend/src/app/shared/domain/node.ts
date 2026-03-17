@@ -2,7 +2,7 @@ import type { FormType, G, T } from 'ngx-mf';
 import { v4 as uuidv4 } from 'uuid';
 import type { NodeSnapshot } from './snapshot';
 
-export const NODE_TYPES = ['text', 'server', 'connector'] as const;
+export const NODE_TYPES = ['text', 'server', 'connector', 'source'] as const;
 
 export type NodeTypes = (typeof NODE_TYPES)[number];
 

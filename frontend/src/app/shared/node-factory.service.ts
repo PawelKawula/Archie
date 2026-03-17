@@ -6,6 +6,7 @@ import type {
   NodeOptions,
   NodeTypes,
 } from './domain/node';
+import { PacketSource } from './domain/packet-source';
 import { Server } from './domain/server';
 import { Text } from './domain/text';
 
@@ -18,6 +19,7 @@ export class NodeFactory {
     server: Server,
     connector: Connector,
     text: Text,
+    source: PacketSource,
   } as const;
 
   createNode(options: NodeOptions & BaseNodeFormValue) {

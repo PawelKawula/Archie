@@ -27,6 +27,11 @@ export type NodeSnapshot = {
   y: number;
 };
 
+export type PacketSourceSnapshot = NodeSnapshot & {
+  connectorId: string;
+  interval: number;
+};
+
 export type ClusterSnapshot = {
   tick: number;
   nodes: NodeSnapshot[];
