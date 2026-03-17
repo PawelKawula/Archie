@@ -46,11 +46,11 @@ jobs:
           version: 10
 
       - name: Use Node.js ${{ env.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.node-version }}
           cache: pnpm
-          cache-dependency-path: frontend
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install
@@ -121,18 +121,6 @@ jobs:
           remote_host: ${{ secrets.SSH_HOST }} # ex: example.com
           remote_port: ${{ secrets.SSH_PORT }} # ex: 22
           remote_user: ${{ secrets.SSH_USER }} # ex: ubuntu
-          remote_key: ${{ secrets.SSH_KEY }}
-          remote_key_pass: ${{ secrets.SSH_PASSPHRASE }}
-
-      - name: Copy requirements.txt to backend folder
-        uses: burnett01/rsync-deployments@v8
-        with:
-          switches: -az
-          path: backend/requirements-new.txt
-          remote_path: ${{ vars.BACKEND_PROJECT_FOLDER }}
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_port: ${{ secrets.SSH_PORT }}
-          remote_user: ${{ secrets.SSH_USER }}
           remote_key: ${{ secrets.SSH_KEY }}
           remote_key_pass: ${{ secrets.SSH_PASSPHRASE }}
 
