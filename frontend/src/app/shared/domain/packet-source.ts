@@ -4,14 +4,14 @@ import { Packet } from './packet';
 import type { PacketSourceSnapshot } from './snapshot';
 
 export type PacketSourceOptions = {
-  connector: Connector;
+  connector?: Connector;
   interval?: number;
 };
 
 type _PacketSourceOptions = NodeOptions & PacketSourceOptions;
 
 export class PacketSource extends Node {
-  connector: Connector;
+  connector?: Connector;
   interval: number;
   private tickCount = 0;
 
@@ -23,6 +23,7 @@ export class PacketSource extends Node {
   }
 
   async tick(): Promise<void> {
+    if (!this.connector) return;
     this.tickCount++;
     if (this.tickCount % this.interval === 0) {
       await this.connector.connection.enqueue(new Packet());
@@ -32,7 +33,7 @@ export class PacketSource extends Node {
   override toSnapshot(): PacketSourceSnapshot {
     return {
       ...super.toSnapshot(),
-      connectorId: this.connector.id,
+      connectorId: this.connector?.id,
       interval: this.interval,
     };
   }

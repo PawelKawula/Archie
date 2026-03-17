@@ -46,6 +46,9 @@
       @if (form.controls.type.value === "server") {
         <app-add-server />
       }
+      @if (form.controls.type.value === "source") {
+        <app-add-packet-source />
+      }
     </hlm-field-group>
   </div>
   <hlm-dialog-footer>

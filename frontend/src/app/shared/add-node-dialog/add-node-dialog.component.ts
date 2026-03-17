@@ -19,6 +19,7 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { distinctUntilChanged, map, startWith } from 'rxjs';
 import type { ValueOfForm } from '../../../types';
 import { NODE_TYPES, type NodeFormGroupKeysType } from '../domain/node';
+import { AddPacketSource } from './add-packet-source/add-packet-source.component';
 import { AddServer } from './add-server/add-server.component';
 import { AddText } from './add-text/add-text.component';
 
@@ -40,6 +41,7 @@ export type EditNodeContext =
     HlmSelectImports,
     AddText,
     AddServer,
+    AddPacketSource,
   ],
   templateUrl: './add-node-dialog.component.html',
   styleUrl: './add-node-dialog.component.css',

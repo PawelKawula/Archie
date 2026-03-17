@@ -1,0 +1,23 @@
+<hlm-field [formGroup]="form">
+  <label hlmFieldLabel for="name">Name</label>
+  <input
+    hlmInput
+    id="name"
+    placeholder="..."
+    autoComplete="off"
+    formControlName="name"
+  />
+  @if (form.controls.name.touched && form.controls.name.invalid) {
+    <hlm-field-error>
+      @if (
+        form.controls.name.errors?.["required"] ||
+        form.controls.name.errors?.["minlength"]
+      ) {
+        Name must be at least 1 character.
+      }
+      @if (form.controls.name.errors?.["maxlength"]) {
+        Name cannot exceed 32 characters.
+      }
+    </hlm-field-error>
+  }
+</hlm-field>

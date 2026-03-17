@@ -20,6 +20,7 @@ import { Viewport } from 'pixi-viewport';
 import { ContextMenu } from '../../shared/context-menu.service';
 import type { Connector } from '../../shared/domain/connector';
 import type { Node } from '../../shared/domain/node';
+import { PacketSource } from '../../shared/domain/packet-source';
 import { Server } from '../../shared/domain/server';
 import { Text } from '../../shared/domain/text';
 import { ClusterStore } from '../cluster.store';
@@ -51,6 +52,8 @@ export class Canvas {
   private readonly _NODE_HALF_SIZE = 24;
   private readonly _SERVER_NODE_WIDTH = 160;
   private readonly _SERVER_NODE_HEIGHT = 80;
+  private readonly _PACKET_SOURCE_WIDTH = 120;
+  private readonly _PACKET_SOURCE_HEIGHT = 70;
   private readonly _abortController = new AbortController();
 
   constructor() {
@@ -443,6 +446,12 @@ export class Canvas {
         y: container.y + this._SERVER_NODE_HEIGHT / 2,
       };
     }
+    if (node instanceof PacketSource) {
+      return {
+        x: container.x + this._PACKET_SOURCE_WIDTH / 2,
+        y: container.y + this._PACKET_SOURCE_HEIGHT / 2,
+      };
+    }
     return {
       x: container.x + this._NODE_HALF_SIZE,
       y: container.y + this._NODE_HALF_SIZE,
@@ -460,6 +469,9 @@ export class Canvas {
   private async _createNodeGraphics(node: Node): Promise<Container> {
     if (node instanceof Server) {
       return this._createServerGraphics(node);
+    }
+    if (node instanceof PacketSource) {
+      return this._createPacketSourceGraphics(node);
     }
 
     let graphics: Container;
@@ -524,6 +536,52 @@ export class Canvas {
     container.addChild(bg);
     container.addChild(nameText);
     container.addChild(sprite);
+    container.addChild(highlight);
+    container.eventMode = 'static';
+    container.cursor = 'pointer';
+    container.on('pointerover', () => {
+      if (this.orchestrator.connectionPickState().step !== 'idle') {
+        highlight.visible = true;
+      }
+    });
+    container.on('pointerout', () => {
+      highlight.visible = false;
+    });
+    container.on('rightclick', (event) => {
+      event.stopPropagation();
+      this.orchestrator.handleNodeRightClick(node, event);
+    });
+    this._setupDrag(node, container);
+
+    return container;
+  }
+
+  private _createPacketSourceGraphics(node: PacketSource): Container {
+    const W = this._PACKET_SOURCE_WIDTH;
+    const H = this._PACKET_SOURCE_HEIGHT;
+    const PADDING = 8;
+
+    const bg = new Graphics()
+      .rect(0, 0, W, H)
+      .fill({ color: 0x1e1e2e })
+      .rect(0, 0, W, H)
+      .stroke({ color: 0x4a90d9, width: 2 });
+
+    const nameText = new BitmapText({
+      text: node.name,
+      style: { fontFamily: 'Hack-Regular.fnt', fontSize: 10, fill: 'ffffff' },
+    });
+    nameText.x = W / 2 - nameText.width / 2;
+    nameText.y = H - PADDING - nameText.height;
+
+    const highlight = new Graphics()
+      .rect(-2, -2, W + 4, H + 4)
+      .stroke({ color: 0xffd700, width: 3 });
+    highlight.visible = false;
+
+    const container = new Container();
+    container.addChild(bg);
+    container.addChild(nameText);
     container.addChild(highlight);
     container.eventMode = 'static';
     container.cursor = 'pointer';

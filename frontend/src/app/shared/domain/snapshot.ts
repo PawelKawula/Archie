@@ -28,7 +28,7 @@ export type NodeSnapshot = {
 };
 
 export type PacketSourceSnapshot = NodeSnapshot & {
-  connectorId: string;
+  connectorId?: string;
   interval: number;
 };
 
